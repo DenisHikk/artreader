@@ -19,7 +19,7 @@ A modern cross-platform desktop application for reading PDF and DJVU documents, 
 ### Prerequisites
 
 - Node.js v16+
-- npm or yarn
+- npm
 - Git
 
 ### Setup
