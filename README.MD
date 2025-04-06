@@ -31,8 +31,6 @@ cd pdf-reader
 
 # Install dependencies
 npm install
-# or
-yarn install
 
 # Build renderer process (development)
 npm run build:render
