@@ -42,6 +42,9 @@ npm run watch
 npm run build:electron
 
 # Build both processes and launch the app
+npm run launch:build
+
+# Launch the app
 npm run launch
 
 # Build production-ready application (TODO)

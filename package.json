@@ -7,7 +7,8 @@
         "build:render": "webpack -c ./build/webpack.renderer.dev.js --progress --mode development",
         "watch": "webpack serve --config ./build/webpack.renderer.dev.js --mode development",
         "build:electron": "webpack -c ./build/webpack.electron.dev.js --progress --mode development",
-        "launch": "npm run build:render && npm run build:electron && electron ./dist/main.js",
+        "launch:build": "npm run build:render && npm run build:electron && electron ./dist/main.js",
+        "launch": "electron ./dist/main.js",
         "test": "echo Error Fish:D",
         "build:release": "echo Error Fish:D"
     },
