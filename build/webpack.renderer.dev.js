@@ -4,7 +4,7 @@ const { DefinePlugin } = require("webpack");
 
 module.exports = {
     mode: "development",
-    entry: path.resolve(__dirname, "../src/render/main.ts"),
+    entry: path.resolve(__dirname, "..src/render/main.ts"),
     output: {
         path: path.resolve(__dirname, "../dist"),
         filename: "render.js"
