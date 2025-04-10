@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
-import IPCChannels from "@/types/IPCChannels";
+import {IPCChannels} from "@/types/IPCChannels";
 
 contextBridge.exposeInMainWorld("api", {
-    dialogOpenFile: () => ipcRenderer.invoke(IPCChannels.DIALOG_OPEN_FILE)
+    dialogOpenFile: (): Promise<string> => ipcRenderer.invoke(IPCChannels.DIALOG_OPEN_FILE)
 })

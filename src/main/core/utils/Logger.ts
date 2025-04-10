@@ -4,7 +4,4 @@ export class Logger {
     constructor(private readonly name: string) {
 
     }
-
-
-    
 }

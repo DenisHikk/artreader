@@ -1,11 +1,12 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, webContents } from "electron";
 import { platform } from "os";
 import path from "path";
 import { Logger } from "../utils/Logger";
+import { IPCController } from "./IPCController";
 
 export class AppController {
     private mainWindow: BrowserWindow | null = null;
-    private isDev: string | undefined = process.env.MODE;
+    private isDev: string | undefined = "dev";
     private LOGGER = new Logger("AppController");
     constructor() {
         this.setupAppLifeCycle();
@@ -32,18 +33,22 @@ export class AppController {
             height: HEIGHT,
             webPreferences: {
                 contextIsolation: true,
-                preload: path.resolve(__dirname, "@/preload.ts")
+                preload: path.resolve(__dirname, "preload.js")
             }
         });
         this.loadAppliocation();
+        this.setupWindowListener();
+        new IPCController(this.mainWindow);
+
+        console.log(this.isDev);
+        if(this.isDev === "dev") {
+            this.mainWindow.webContents.openDevTools();
+        }
+
     }
 
-    private loadAppliocation(): string {
-        if(this.isDev === "dev") {
-            this.mainWindow?.loadURL("localhost:8080");
-        } else {
-            this.mainWindow?.loadFile("index.html");
-        }
+    private loadAppliocation(): void {
+        this.mainWindow?.loadFile("index.html");
     }
 
     private setupWindowListener() {
