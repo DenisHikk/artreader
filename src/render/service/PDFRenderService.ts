@@ -10,7 +10,7 @@ export class PDFRenderService {
         this.pdfDoc = await getDocument(this.pdfData).promise;
     }
 
-    public async renderPage(pageNumber:number): Promise<PDFPageProxy | undefined> {
+    public async getPage(pageNumber:number): Promise<PDFPageProxy | undefined> {
         const page = await this.pdfDoc?.getPage(pageNumber);
         return page;
     }

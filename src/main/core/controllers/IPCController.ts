@@ -1,6 +1,7 @@
 import { IPCChannels } from "@/types/IPCChannels";
 import { BrowserWindow, dialog, ipcMain } from "electron";
 import { readFile } from "@/main/core/models/fileManager";
+import logger from "pino"
 
 export class IPCController {
     constructor(private mainWindow: BrowserWindow){
@@ -8,22 +9,33 @@ export class IPCController {
     }
 
     private setupHandlers() {
-        this.setupFileDialog()
+        this.setupFileDialog();
+        this.setupOpenFile();
     }
 
     private setupFileDialog() {
         ipcMain.handle(
             IPCChannels.DIALOG_OPEN_FILE,
-            async () => {
+            async ():Promise<string> => {
                 const result = await dialog.showOpenDialog({
                     properties:["openFile"],
                     filters: [
-                        {name: "PDF File", extensions: ["pdf"]}
+                        {name: "Book file", extensions: ["pdf"]}
                     ]
                 });
-                return readFile(result.filePaths[0]);
+                logger
+                return result.filePaths[0];
             }
         );
     };
+
+    private setupOpenFile() {
+        ipcMain.handle(
+            IPCChannels.OPEN_FILE,
+            async (_, file:string): Promise<ArrayBuffer | SharedArrayBuffer> => {
+                return readFile(file);
+            }
+        )
+    }
 
 }
