@@ -11,7 +11,7 @@ import { PDFRenderService } from './service/PDFRenderService';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 let pdfDoc: any = null;
-let file;
+let file: string;
 let pdf: ArrayBuffer;
 
 interface AppState {
@@ -32,6 +32,7 @@ const state = reactive<AppState>({
 
 async function openFile() {
     file = await window.api.dialogOpenFile();
+    console.log(`file is ${file}`);
     pdf = await window.api.openFile(file)
     state.msg = file.split("/")[file.split("/").length - 1];
     render();

@@ -1,7 +1,15 @@
+import pino, { Logger } from "pino";
 
-export class Logger {
-    //without logger, 'casue men code without LOGGER
-    constructor(private readonly name: string) {
-
+const logger: Logger = pino({
+    level: "debug",
+    transport: {
+        target: "pino-pretty",
+        options: {
+            colorize: true,
+            translateTime: "SYS:dd-mm-yyyy HH:MM:ss",
+            ignore: "pid, hostname"
+        }
     }
-}
+});
+
+export default logger;

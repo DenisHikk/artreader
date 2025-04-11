@@ -1,13 +1,12 @@
 import { app, BrowserWindow, webContents } from "electron";
 import { platform } from "os";
 import path from "path";
-import { Logger } from "../utils/Logger";
+import logger from "../utils/Logger";
 import { IPCController } from "./IPCController";
 
 export class AppController {
     private mainWindow: BrowserWindow | null = null;
     private isDev: string | undefined = "dev";
-    private LOGGER = new Logger("AppController");
     constructor() {
         this.setupAppLifeCycle();
     }
