@@ -1,7 +1,7 @@
 const path = require("path");
 const { VueLoaderPlugin } = require("vue-loader");
 const { DefinePlugin } = require("webpack");
-
+//copy index.html
 module.exports = {
     mode: "development",
     entry: path.resolve(__dirname, "../src/render/main.ts"),
@@ -49,7 +49,6 @@ module.exports = {
             "@": path.resolve(__dirname, "../src"),
             "vue$": "vue/dist/vue.esm-bundler.js"
         },
-        
     },
     devServer: {
         static: {
