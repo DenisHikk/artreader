@@ -1,7 +1,8 @@
 import { app, BrowserWindow, webContents } from "electron";
 import { platform } from "os";
 import path from "path";
-import logger from "../utils/Logger";
+import log from "../utils/logger";
+
 import { IPCController } from "./IPCController";
 
 export class AppController {
@@ -39,7 +40,7 @@ export class AppController {
         this.setupWindowListener();
         new IPCController(this.mainWindow);
 
-        console.log(this.isDev);
+        log.debug("Hello from start debug");
         if(this.isDev === "dev") {
             this.mainWindow.webContents.openDevTools();
         }
@@ -47,6 +48,7 @@ export class AppController {
     }
 
     private loadAppliocation(): void {
+        log.info("Application started")
         this.mainWindow?.loadFile("index.html");
     }
 

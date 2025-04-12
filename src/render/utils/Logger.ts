@@ -1,14 +1,23 @@
-import pino, { Logger } from "pino";
+import log, { FormatParams } from "electron-log";
+import util from "node:util"
 
-const logger: Logger = pino({
-    level: "debug",
-    formatters: {
-        bindings: (bindings) => {
-            return {
-                pid: bindings.pid, host: "Render"
-            }
-        }
-    }
-});
+// interface FormatParams {
+//     data: any[];
+//     level: LogLevel;
+//     logger: Logger;
+//     message: LogMessage;
+//     transport: Transport;
+// }
 
-export default logger;
+log.transports.console.format = ({data, level, message}) => {
+    const text = util.format(...data);
+    const timestapm = `${message.date.getHours()}:${message.date.getMinutes()}:${message.date.getSeconds()}`;
+    return [
+        timestapm,
+        `[${level.toUpperCase()}]`,
+        `Render: ${text}`,
+    ];
+};
+
+
+export default log;

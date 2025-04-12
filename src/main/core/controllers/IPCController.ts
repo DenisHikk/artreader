@@ -1,8 +1,8 @@
 import { IPCChannels } from "@/types/IPCChannels";
 import { BrowserWindow, dialog, ipcMain } from "electron";
 import { readFile } from "@/main/core/models/fileManager";
-import logger from "../utils/Logger";
 import path from "path";
+import { eventNames } from "process";
 
 
 export class IPCController {
@@ -26,7 +26,6 @@ export class IPCController {
                         {name: "Book file", extensions: ["pdf"]}
                     ]
                 });
-                logger.info(`path file is ${result.filePaths}`)
                 return result.filePaths[0];
             }
         );
@@ -36,7 +35,6 @@ export class IPCController {
         ipcMain.handle(
             IPCChannels.OPEN_FILE,
             async (_, file: string): Promise<ArrayBuffer> => {
-                logger.info(`file is ${file}`);
                 return readFile(file);
             }
         )
@@ -46,7 +44,6 @@ export class IPCController {
         ipcMain.handle(
             IPCChannels.WORKER_DIR,
             async (): Promise<string> => {
-                logger.info("workerDir invoke")
                 return path.join(__dirname, "../node_modules/pdfjs-dist/build/pdf.worker.min.mjs");
             }
         )
