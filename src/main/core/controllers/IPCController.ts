@@ -2,7 +2,8 @@ import { IPCChannels } from "@/types/IPCChannels";
 import { BrowserWindow, dialog, ipcMain } from "electron";
 import { readFile } from "@/main/core/models/fileManager";
 import path from "path";
-import { eventNames } from "process";
+import log from "electron-log/main"
+
 
 
 export class IPCController {

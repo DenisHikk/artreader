@@ -1,26 +1,29 @@
 import { app, BrowserWindow, webContents } from "electron";
-import { platform } from "os";
 import path from "path";
-import log from "../utils/logger";
+import log from "electron-log/main";
+import util from "node:util"
 
 import { IPCController } from "./IPCController";
+import { settingLog } from "../utils/logger";
 
 export class AppController {
     private mainWindow: BrowserWindow | null = null;
     private isDev: string | undefined = "dev";
     constructor() {
         this.setupAppLifeCycle();
+        settingLog();
+        log.initialize({ preload: true })
     }
 
-    private setupAppLifeCycle():void {
+    private setupAppLifeCycle(): void {
         app.whenReady().then(() => this.createWindow());
         app.on("window-all-closed", () => {
-            if(process.platform !== "darwin") {
+            if (process.platform !== "darwin") {
                 app.quit();
             }
         })
         app.on("activate", () => {
-            if(BrowserWindow.getAllWindows().length === 0) this.createWindow();
+            if (BrowserWindow.getAllWindows().length === 0) this.createWindow();
         })
     }
 
@@ -39,12 +42,9 @@ export class AppController {
         this.loadAppliocation();
         this.setupWindowListener();
         new IPCController(this.mainWindow);
-
         log.debug("Hello from start debug");
-        if(this.isDev === "dev") {
-            this.mainWindow.webContents.openDevTools();
-        }
-
+        this.mainWindow.webContents.openDevTools();
+        settingLog();
     }
 
     private loadAppliocation(): void {
@@ -53,10 +53,10 @@ export class AppController {
     }
 
     private setupWindowListener() {
-        if(!this.mainWindow) return;
+        if (!this.mainWindow) return;
 
         this.mainWindow?.on("close", () => {
-            if(process.platform !== "darwin") {
+            if (process.platform !== "darwin") {
                 this.mainWindow?.close();
             }
         })

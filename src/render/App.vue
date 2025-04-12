@@ -9,6 +9,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import { PDFRenderService } from './service/PDFRenderService';
 import { getDocument, PageViewport } from 'pdfjs-dist';
+import log from "electron-log/renderer"
 
 let pdfDoc: any = null;
 let file: string;
@@ -44,6 +45,7 @@ onMounted(() => {
 });
 
 async function render() {
+    log.info("Start render");
     const pdfRender = new PDFRenderService();
     await pdfRender.readFile(pdf);
     const page = await pdfRender.getPage(state.currentPage);
@@ -58,8 +60,7 @@ async function render() {
         canvasContext: ctx as CanvasRenderingContext2D,
         viewport: viewport as PageViewport,
     });
-
-}
+}  
 
 
 </script>

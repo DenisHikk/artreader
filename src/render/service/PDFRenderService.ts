@@ -1,5 +1,5 @@
 import { getDocument, GlobalWorkerOptions, PDFDocumentProxy, PDFPageProxy, PDFWorker } from "pdfjs-dist";
-import log from "../utils/Logger";
+import log from "electron-log/renderer"
 
 export class PDFRenderService {
     private pdfDoc: PDFDocumentProxy | null = null; 

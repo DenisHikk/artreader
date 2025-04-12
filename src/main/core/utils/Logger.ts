@@ -1,23 +1,10 @@
-import log, { FormatParams } from "electron-log";
-import util from "node:util"
-
-// interface FormatParams {
-//     data: any[];
-//     level: LogLevel;
-//     logger: Logger;
-//     message: LogMessage;
-//     transport: Transport;
-// }
-
-log.transports.console.format = ({data, level, message}) => {
-    const text = util.format(...data);
-    const timestapm = `${message.date.getHours()}:${message.date.getMinutes()}:${message.date.getSeconds()}`;
-    return [
-        timestapm,
-        `[${level.toUpperCase()}]`,
-        `Electron: ${text}`
-    ];
-};
+import log from "electron-log/main";
+import { FormatParams }  from "electron-log"
 
 
-export default log;
+
+export function settingLog() {
+    log.transports.console.format = `[{h}:{i}:{s}] [{level}] {label}: {text}`;
+    log.transports.console.level = "debug";
+    log.variables.label = "electron"
+}

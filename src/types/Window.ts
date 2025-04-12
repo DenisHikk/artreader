@@ -6,6 +6,6 @@ declare global {
             dialogOpenFile: () => Promise<string>,
             openFile: (path: string)=>Promise<ArrayBuffer>,
             workerDir: () => Promise<string>
-        }
+        },
     }
 }
