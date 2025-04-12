@@ -1,6 +1,7 @@
 const path = require("path");
 const { VueLoaderPlugin } = require("vue-loader");
 const { DefinePlugin } = require("webpack");
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 //copy index.html
 module.exports = {
     mode: "development",
@@ -41,6 +42,11 @@ module.exports = {
             __VUE_OPTIONS_API__: JSON.stringify(true),
             __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
             __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false)
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {from: "./src/static"}
+            ]
         })
     ],
     resolve: {

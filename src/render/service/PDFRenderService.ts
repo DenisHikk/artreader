@@ -1,4 +1,4 @@
-import { getDocument, GlobalWorkerOptions, PDFDocumentProxy, PDFPageProxy, PDFWorker } from "pdfjs-dist";
+import { getDocument, GlobalWorkerOptions, PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist";
 import log from "electron-log/renderer"
 
 export class PDFRenderService {

@@ -1,14 +1,34 @@
 <template>
-    <h1>{{state.msg}}</h1>
     <p>You open {{state.path}}</p>
     <button @click="openFile">Open file</button>
-    <canvas ref="refCanvas" width="500" height="500"></canvas>
+    <div class="pdf-container" ref="pdfContainer">
+        <canvas ref="refCanvas" width="500" height="500"></canvas>
+        <div ref="textLayer" class="text-layer" ></div>
+    </div>
 </template>
+
+<style scoped>
+    canvas {
+        border: 1px solid #aeaeae;
+    }
+    .text-layer {
+        position: absolute;
+        pointer-events: none;
+        line-height: 1;
+    }
+
+    .text-layer span {
+        position: absolute;
+        color: transparent;
+        pointer-events: all;
+        cursor: text;
+    }
+</style>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import { PDFRenderService } from './service/PDFRenderService';
-import { getDocument, PageViewport } from 'pdfjs-dist';
+import { PageViewport, TextLayer } from 'pdfjs-dist';
 import log from "electron-log/renderer"
 
 let pdfDoc: any = null;
@@ -16,9 +36,10 @@ let file: string;
 let pdf: ArrayBuffer;
 
 const refCanvas = ref<HTMLCanvasElement | null>();
+const pdfContainer = ref<HTMLElement | null>();
+const textLayer = ref<HTMLElement | null>();
 
 interface AppState {
-    msg: string,
     path: string,
     currentPage: number,
     totalPage: number,
@@ -26,7 +47,6 @@ interface AppState {
 }
 
 const state = reactive<AppState>({
-    msg: "Hello from Electron and Vue app",
     path: "No selected file",
     currentPage: 1,
     totalPage: 0,
@@ -36,7 +56,7 @@ const state = reactive<AppState>({
 async function openFile() {
     file = await window.api.dialogOpenFile();
     pdf = await window.api.openFile(file)
-    state.path = file.split("/")[file.split("/").length - 1];
+    state.path = `You open ${file.split("/")[file.split("/").length - 1]}`;
     render();
 }
 
@@ -59,7 +79,18 @@ async function render() {
     const taskRender = page?.render({
         canvasContext: ctx as CanvasRenderingContext2D,
         viewport: viewport as PageViewport,
+        isEditing: true,
     });
+
+    const textContent = await page.getTextContent();
+    textLayer.value!.innerHTML = "";
+    const textLayerRender = new TextLayer({
+        textContentSource: textContent,
+        viewport: viewport,
+        container: textLayer.value as HTMLElement
+    })
+    textLayerRender.render();
+    
 }  
 
 
