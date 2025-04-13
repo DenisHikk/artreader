@@ -1,18 +1,14 @@
 import { app, BrowserWindow, webContents } from "electron";
 import path from "path";
 import log from "electron-log/main";
-import util from "node:util"
-
 import { IPCController } from "./IPCController";
-import { settingLog } from "../utils/logger";
 
 export class AppController {
     private mainWindow: BrowserWindow | null = null;
-    private isDev: string | undefined = "dev";
+    private isDev: boolean = process.env.NODE_ENV === "development" ? true : false;
     constructor() {
         this.setupAppLifeCycle();
-        settingLog();
-        log.initialize({ preload: true })
+        log.info(`proccess.env: ${process.env.MODE}`);
     }
 
     private setupAppLifeCycle(): void {
@@ -42,9 +38,7 @@ export class AppController {
         this.loadAppliocation();
         this.setupWindowListener();
         new IPCController(this.mainWindow);
-        log.debug("Hello from start debug");
         this.mainWindow.webContents.openDevTools();
-        settingLog();
     }
 
     private loadAppliocation(): void {

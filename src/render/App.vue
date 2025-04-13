@@ -13,7 +13,6 @@
     }
     .text-layer {
         position: absolute;
-        pointer-events: none;
         line-height: 1;
     }
 
@@ -65,7 +64,6 @@ onMounted(() => {
 });
 
 async function render() {
-    log.info("Start render");
     const pdfRender = new PDFRenderService();
     await pdfRender.readFile(pdf);
     const page = await pdfRender.getPage(state.currentPage);
@@ -87,7 +85,8 @@ async function render() {
     const textLayerRender = new TextLayer({
         textContentSource: textContent,
         viewport: viewport,
-        container: textLayer.value as HTMLElement
+        container: textLayer.value as HTMLElement,
+        
     })
     textLayerRender.render();
     
