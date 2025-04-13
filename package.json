@@ -4,6 +4,7 @@
     "description": "Reader for PDF, djvi with notes and bookmarks",
     "main": "index.js",
     "scripts": {
+        "clean": "rimraf dist",
         "build:render": "webpack -c ./build/webpack.renderer.dev.js --progress --mode development",
         "watch": "webpack serve --config ./build/webpack.renderer.dev.js --mode development",
         "build:electron": "webpack -c ./build/webpack.electron.dev.js --progress --mode development",
@@ -38,6 +39,7 @@
         "webpack-merge": "^6.0.1"
     },
     "dependencies": {
-        "pdfjs-dist": "^5.1.91"
+        "pdfjs-dist": "^5.1.91",
+        "rimraf": "^6.0.1"
     }
 }
