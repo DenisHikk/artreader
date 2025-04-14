@@ -1,4 +1,4 @@
-import { app, BrowserWindow, webContents } from "electron";
+import { app, BrowserWindow, globalShortcut, webContents } from "electron";
 import path from "path";
 import log from "electron-log/main";
 import { IPCController } from "./IPCController";
@@ -12,7 +12,10 @@ export class AppController {
     }
 
     private setupAppLifeCycle(): void {
-        app.whenReady().then(() => this.createWindow());
+        app.whenReady().then(() => {
+            this.createWindow()
+            this.setupGlobalShortcut();
+        });
         app.on("window-all-closed", () => {
             if (process.platform !== "darwin") {
                 app.quit();
@@ -32,13 +35,13 @@ export class AppController {
             height: HEIGHT,
             webPreferences: {
                 contextIsolation: true,
-                preload: path.resolve(__dirname, "preload.js")
+                preload: path.resolve(__dirname, "preload.js"),
+                devTools: true // its enable devTools not turn on | read documentation
             }
         });
         this.loadAppliocation();
         this.setupWindowListener();
         new IPCController(this.mainWindow);
-        this.mainWindow.webContents.openDevTools();
     }
 
     private loadAppliocation(): void {
@@ -53,6 +56,13 @@ export class AppController {
             if (process.platform !== "darwin") {
                 this.mainWindow?.close();
             }
+        })
+    }
+
+    private setupGlobalShortcut() {
+        globalShortcut.register("Alt+CommandOrControl+I", () => {
+            log.debug("Pressed 'Alt+CommandOrControl+I'")
+            this.mainWindow!.webContents.openDevTools();
         })
     }
 }
