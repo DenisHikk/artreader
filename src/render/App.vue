@@ -2,26 +2,42 @@
     <p>You open {{state.path}}</p>
     <button @click="openFile">Open file</button>
     <div class="pdf-container" ref="pdfContainer">
-        <canvas ref="refCanvas" width="500" height="500"></canvas>
         <div ref="textLayer" class="text-layer" ></div>
+        <canvas ref="refCanvas" width="500" height="500"></canvas>
     </div>
 </template>
 
 <style scoped>
-    canvas {
-        border: 1px solid #aeaeae;
-    }
-    .text-layer {
-        position: absolute;
-        line-height: 1;
-    }
+.pdf-container {
+  position: relative;
+}
 
-    .text-layer span {
-        position: absolute;
-        color: transparent;
-        pointer-events: all;
-        cursor: text;
-    }
+canvas {
+  border: 1px solid #aeaeae;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.text-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+  transform: scale(var(--scale, 1));
+}
+
+.text-layer span {
+  position: absolute;
+  color: transparent;
+  cursor: text;
+  pointer-events: auto;
+  transform-origin: 0 0;
+  white-space: pre;
+  transform-origin: 0 0;
+}
 </style>
 
 <script setup lang="ts">
@@ -64,31 +80,59 @@ onMounted(() => {
 });
 
 async function render() {
+    if(!pdfContainer.value || !refCanvas.value || !textLayer.value) {
+        return;
+    }
     const pdfRender = new PDFRenderService();
     await pdfRender.readFile(pdf);
     const page = await pdfRender.getPage(state.currentPage);
     const ctx = refCanvas.value?.getContext("2d");
-    if (!refCanvas || !refCanvas.value || !page) {
-        return;
-    };
-    const viewport = page.getViewport({scale: state.scale});
+    const pixelRatio = window.devicePixelRatio || 1;
+    const viewport = page!.getViewport({
+        scale: state.scale * pixelRatio,
+        rotation: 0,
+        dontFlip: false
+    });
+    
+    pdfContainer.value.style.width = `${viewport.width / pixelRatio}px`;
+    pdfContainer.value.style.height = `${viewport.height / pixelRatio}px`;
+
     refCanvas.value.width = viewport.width;
     refCanvas.value.height = viewport.height;
+
+    textLayer.value.style.width = `${viewport.width / pixelRatio}px`;
+    textLayer.value.style.height = `${viewport.height / pixelRatio}px`;
+    textLayer.value!.style.setProperty('--scale', state.scale.toString());
+
     const taskRender = page?.render({
         canvasContext: ctx as CanvasRenderingContext2D,
         viewport: viewport as PageViewport,
         isEditing: true,
+        transform: [pixelRatio, 0, 0, pixelRatio, 0, 0]
     });
 
-    const textContent = await page.getTextContent();
+    const textContent = await page!.getTextContent();
     textLayer.value!.innerHTML = "";
     const textLayerRender = new TextLayer({
         textContentSource: textContent,
         viewport: viewport,
         container: textLayer.value as HTMLElement,
-        
-    })
+    });
+    textLayer.value.style.transform = `scale(${state.scale})`
     textLayerRender.render();
+
+    Array.from(textLayer.value.children).forEach((span, i) => {
+        const item = textContent.items[i];
+    
+        if ('transform' in item && item.transform) {
+            const transform = item.transform;
+            (span as HTMLElement).style.transform = `matrix(${transform.join(',')})`;
+        }
+        
+        else if ('markedContent' in item) {
+            console.log('Marked content:', item);
+        }
+    });
     
 }  
 
