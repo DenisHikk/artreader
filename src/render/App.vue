@@ -2,7 +2,7 @@
     <p>You open {{state.path}}</p>
     <button @click="openFile">Open file</button>
     <div class="pdf-container" ref="pdfContainer">
-        <div ref="textLayer" class="text-layer" ></div>
+        <div ref="textLayer" class="textLayer" ></div>
         <canvas ref="refCanvas" width="500" height="500"></canvas>
     </div>
 </template>
@@ -19,25 +19,6 @@ canvas {
   pointer-events: none;
 }
 
-.text-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transform-origin: 0 0;
-  transform: scale(var(--scale, 1));
-}
-
-.text-layer span {
-  position: absolute;
-  color: transparent;
-  cursor: text;
-  pointer-events: auto;
-  transform-origin: 0 0;
-  white-space: pre;
-  transform-origin: 0 0;
-}
 </style>
 
 <script setup lang="ts">
@@ -123,7 +104,7 @@ async function render() {
 
     Array.from(textLayer.value.children).forEach((span, i) => {
         const item = textContent.items[i];
-    
+        
         if ('transform' in item && item.transform) {
             const transform = item.transform;
             (span as HTMLElement).style.transform = `matrix(${transform.join(',')})`;
