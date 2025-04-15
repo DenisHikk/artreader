@@ -42,7 +42,7 @@ npm run watch
 npm run build:electron
 
 # Build both processes and launch the app
-npm run launch:build
+npm run build:launch
 
 # Launch the app
 npm run launch
