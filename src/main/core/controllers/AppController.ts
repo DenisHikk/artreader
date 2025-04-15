@@ -9,6 +9,7 @@ export class AppController {
     constructor() {
         this.setupAppLifeCycle();
         log.info(`proccess.env: ${process.env.MODE}`);
+        log.initialize({ preload: true });
     }
 
     private setupAppLifeCycle(): void {
@@ -66,5 +67,3 @@ export class AppController {
         })
     }
 }
-
-

@@ -6,5 +6,4 @@ import dotenv from "dotenv";
 
 dotenv.config();
 settingLog();
-log.initialize({ preload: true });
 new AppController();

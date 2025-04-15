@@ -61,6 +61,7 @@ onMounted(() => {
 });
 
 async function render() {
+    log.debug("Start render");
     if(!pdfContainer.value || !refCanvas.value || !textLayer.value) {
         return;
     }
