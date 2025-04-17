@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, webContents } from "electron";
+import { app, BrowserWindow, globalShortcut } from "electron";
 import path from "path";
 import log from "electron-log/main";
 import { IPCController } from "./IPCController";

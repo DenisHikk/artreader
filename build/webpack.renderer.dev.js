@@ -2,7 +2,8 @@ const path = require("path");
 const { VueLoaderPlugin } = require("vue-loader");
 const { DefinePlugin } = require("webpack");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-//copy index.html
+const sass = require("sass");
+
 module.exports = {
     mode: "development",
     entry: path.resolve(__dirname, "../src/render/main.ts"),
@@ -12,21 +13,28 @@ module.exports = {
     },
     module: {
         rules: [
-            {test: /\.vue$/, use: "vue-loader"},
+            { 
+                test: /\.vue$/, 
+                use: "vue-loader"
+            },
             {
-                test: /\.css$/, 
+                test: /\.(sass|scss)$/,
                 use: [
-                    "vue-style-loader",
+                    "style-loader",
+                    "css-loader",
                     {
-                        loader: 'css-loader',
+                        loader: 'sass-loader',
                         options: {
-                            esModule: false
-                        }
+                            implementation: sass,
+                            sassOptions: {
+                                indentedSyntax: true,
+                            },
+                        },
                     }
                 ]
             },
             {
-                test: /\.ts$/, 
+                test: /\.ts$/,
                 use: [{
                     loader: "ts-loader",
                     options: {
@@ -45,15 +53,15 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                {from: "./src/static"}
+                { from: "./src/static" }
             ]
-        })
+        }),
     ],
     resolve: {
         extensions: ['.vue', '.ts', ".js", ".json"],
         alias: {
             "@": path.resolve(__dirname, "../src"),
-            "vue$": "vue/dist/vue.esm-bundler.js"
+            "vue$": "vue/dist/vue.esm-bundler.js",
         },
     },
     devServer: {
