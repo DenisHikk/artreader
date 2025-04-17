@@ -53,7 +53,8 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                { from: "./src/static" }
+                { from: "./src/static" },
+                { from: "./node_modules/pdfjs-dist/web/pdf_viewer.css"}
             ]
         }),
     ],
