@@ -30,8 +30,8 @@ A modern cross-platform desktop application for reading PDF and DJVU documents, 
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/pdf-reader.git
-cd pdf-reader
+git clone https://github.com/DenisHikk/artreader.git
+cd artreader
 
 # Install dependencies
 npm install
