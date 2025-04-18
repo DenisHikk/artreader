@@ -3,8 +3,6 @@ import { BrowserWindow, dialog, ipcMain } from "electron";
 import { readFile } from "@/main/core/models/fileManager";
 import path from "path";
 
-
-
 export class IPCController {
     constructor(private mainWindow: BrowserWindow){
         this.setupHandlers();
@@ -48,5 +46,4 @@ export class IPCController {
             }
         )
     }
-
 }
