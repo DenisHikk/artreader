@@ -4,16 +4,22 @@ import log from "electron-log/renderer"
 import quasarLang from 'quasar/lang/ru'
 import { Quasar } from "quasar"
 import * as quasarComponents from 'quasar';
+import "@/render/core/style/quasar.variables.sass"
+import "@/render/core/style/quasar.style.sass"
+import "@quasar/extras/material-icons/material-icons.css"
 log.variables.label = "render";
 
-// import "@/render/style/quasar.variables.sass"
-import "@/render/style/quasar.style.sass"
+
+
 
 const app = createApp(App);
 app.use(Quasar, {
     lang: quasarLang,
     components: quasarComponents,
     plugins: {},
-    config: {}
-  })
+    config: {},
+    framework: {
+        IconSet: "material-icons",
+    }
+})
 app.mount("#q-app");

@@ -21,6 +21,7 @@
         "@babel/preset-env": "^7.18.10",
         "@eslint/js": "^9.24.0",
         "@quasar/app-webpack": "^4.2.0",
+        "@quasar/extras": "^1.16.17",
         "@types/node": "^22.14.0",
         "@types/pdfjs-dist": "^2.10.377",
         "@vue/cli-service": "^5.0.8",
@@ -54,7 +55,6 @@
         "webpack-merge": "^6.0.1"
     },
     "dependencies": {
-        "@quasar/extras": "^1.16.17",
         "pdfjs-dist": "^5.1.91",
         "quasar": "^2.18.1"
     }

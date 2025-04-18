@@ -1,44 +1,44 @@
 <template>
-    <q-layout view="lHh Lpr lFf">
-        <q-header elevated>
+    <q-layout view="hHh lpR fFf">
+
+        <q-header elevated class="bg-primary text-white">
             <q-toolbar>
-                <q-toolbar-title>Выбор книги</q-toolbar-title>
+                <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
+
+                <q-toolbar-title>
+                    <q-avatar>
+                        <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
+                    </q-avatar>
+                    ArtReader
+                </q-toolbar-title>
             </q-toolbar>
         </q-header>
 
+        <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
+            
+        </q-drawer>
+
         <q-page-container>
-            <book-list :selectBook="selectBook" v-if="!selectedBook" />
-            <book-details :selectedBook="selectedBook" v-if="selectedBook" />
+            <q-btn @click="openFile" label="Open File"></q-btn>
         </q-page-container>
+
     </q-layout>
 </template>
 
-<script>
-import BookList from './core/components/BookList.vue'
-import BookDetails from './core/components/BookDetails.vue'
+<script setup>
+import { ref } from 'vue'
 
-export default {
-    name: 'App',
-    components: {
-        BookList,
-        BookDetails
-    },
-    data() {
-        return {
-            selectedBook: null
-        };
-    },
-    methods: {
-        selectBook(book) {
-            this.selectedBook = book;
-        }
-    }
-};
+const leftDrawerOpen = ref(false);
+const toggleLeftDrawer = () => {
+    leftDrawerOpen.value = !leftDrawerOpen.value
+}
+
+
+const openFile = () => {
+    window.api.dialogOpenFile(); //return path to file *.pdf
+}
+
 </script>
 
 <style lang="scss">
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f1f1f1;
-}
 </style>

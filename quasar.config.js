@@ -1,4 +1,5 @@
-const { configure } = require("@quasar/app-webpack")
+const { configure } = require("@quasar/app-webpack");
+const { IconSet } = require("quasar");
 module.exports = configure(function (ctx) {
     console.log(ctx);
     return {
@@ -31,5 +32,11 @@ module.exports = configure(function (ctx) {
                 }
             }
         },
+        framework: {
+            IconSet: "material-icons"
+        },
+        extras: [
+            "material-icons"
+        ]
     }
 });

@@ -6,9 +6,10 @@ import { IPCController } from "./IPCController";
 export class AppController {
     private mainWindow: BrowserWindow | null = null;
     private isDev: boolean = process.env.NODE_ENV === "development" ? true : false;
+    private isMainWindowClosed: boolean = false;
     constructor() {
         this.setupAppLifeCycle();
-        log.info(`proccess.env: ${process.env.MODE}`);
+        log.debug(`proccess.env: ${process.env.MODE}`);
         log.initialize({ preload: true });
     }
 
@@ -46,7 +47,7 @@ export class AppController {
     }
 
     private loadAppliocation(): void {
-        log.info("Application started")
+        log.debug("Application started")
         this.mainWindow?.loadFile("index.html");
     }
 
@@ -54,9 +55,7 @@ export class AppController {
         if (!this.mainWindow) return;
 
         this.mainWindow?.on("close", () => {
-            if (process.platform !== "darwin") {
-                this.mainWindow?.close();
-            }
+            //todo somthing when you close app:D
         })
     }
 

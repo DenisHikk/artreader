@@ -19,14 +19,6 @@ export class PDFRenderService {
         }
     }
 
-    public async render(canvasContext: CanvasRenderingContext2D, viewport: PageViewport): Promise<void> {
-        return this.page?.render({
-            canvasContext: canvasContext,
-            viewport: viewport,
-            isEditing: true,
-        }).promise;
-    }
-
     public async getPage(pageNumber:number): Promise<PDFPageProxy | undefined> {
         if(!this.pdfDoc) {
             return;
@@ -35,7 +27,15 @@ export class PDFRenderService {
         return this.page;
     }
 
-    public async getTextContet(): Promise<TextContent> {
+    public async render(canvasContext: CanvasRenderingContext2D, viewport: PageViewport): Promise<void> {
+        return this.page?.render({
+            canvasContext: canvasContext,
+            viewport: viewport,
+        }).promise;
+    }
+
+    // rewrite this method to use pdfjs-dist TextLayerBuilder or somthing else !not import from pdfjs-dist
+    public async getTextContent(): Promise<TextContent> {
         return this.page!.getTextContent();
     }
 

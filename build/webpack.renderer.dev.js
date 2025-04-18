@@ -15,7 +15,7 @@ module.exports = {
         rules: [
             { 
                 test: /\.vue$/, 
-                use: "vue-loader"
+                use: "vue-loader",
             },
             {
                 test: /\.(sass|scss)$/,
@@ -41,6 +41,10 @@ module.exports = {
                         appendTsSuffixTo: [/\.vue$/]
                     }
                 }]
+            },
+            {
+                test: /\.css$/,
+                use: ["style-loader", "css-loader"]
             }
         ],
     },

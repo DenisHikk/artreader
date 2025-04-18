@@ -11,5 +11,6 @@ export default defineConfig([
     tseslint.configs.recommended,
     pluginVue.configs["flat/essential"],
     { files: ["**/*.vue"], languageOptions: { parserOptions: { parser: tseslint.parser } } },
-    { rules: { "no-unused-vars": "warn", "no-undef": "warn" } }
+    { rules: { "no-unused-vars": "warn", "no-undef": "warn" } },
+    { ignores: ["**/*.d.ts"] }
 ]);
