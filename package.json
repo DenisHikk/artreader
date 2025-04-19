@@ -6,7 +6,7 @@
     "scripts": {
         "clean": "rimraf dist",
         "build:render": "webpack -c ./build/webpack.renderer.dev.js --progress --mode development",
-        "watch": "webpack serve --c ./build/webpack.renderer.dev.js --mode development",
+        "watch:render": "npm run build:render && webpack serve --config ./build/webpack.renderer.dev.js --mode development --hot",
         "build:electron": "webpack -c ./build/webpack.electron.dev.js --progress --mode development",
         "launch": "electron ./dist/main.js",
         "build:launch": "npm run build:render && npm run build:electron && electron ./dist/main.js",
@@ -14,7 +14,7 @@
         "test": "echo Error Fish:D",
         "build:release": "echo Error Fish:D"
     },
-    "author": "Artur and Denis",
+    "author": "Team ArtReader",
     "license": "MIT",
     "devDependencies": {
         "@babel/core": "^7.18.13",
