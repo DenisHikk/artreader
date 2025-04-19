@@ -2,11 +2,13 @@ import { app, BrowserWindow, globalShortcut } from "electron";
 import path from "path";
 import log from "electron-log/main";
 import { IPCController } from "./IPCController";
+import { WindowBuilder } from "../window/WindowBuilder";
+import { WindowManager } from "../window/WindowManager";
 
 export class AppController {
-    private mainWindow: BrowserWindow | null = null;
+    private managerWindow = new WindowManager();
     private isDev: boolean = process.env.NODE_ENV === "development" ? true : false;
-    private isMainWindowClosed: boolean = false;
+
     constructor() {
         this.setupAppLifeCycle();
         log.debug(`proccess.env: ${process.env.MODE}`);
@@ -15,54 +17,43 @@ export class AppController {
 
     private setupAppLifeCycle(): void {
         app.whenReady().then(() => {
-            this.createWindow()
+            this.createMainWindow()
             this.setupGlobalShortcut();
         });
+        app.on("activate", () => {
+            if (BrowserWindow.getAllWindows().length === 0) this.createMainWindow();
+        })
         app.on("window-all-closed", () => {
             if (process.platform !== "darwin") {
                 app.quit();
             }
-        })
-        app.on("activate", () => {
-            if (BrowserWindow.getAllWindows().length === 0) this.createWindow();
-        })
-    }
-
-    private createWindow(): void {
-        //rewrite from .env to json setting like that, maybe kind of its will best practice i don't know:D
-        const WIDTH: number = 980;
-        const HEIGHT: number = 1280;
-        this.mainWindow = new BrowserWindow({
-            width: WIDTH,
-            height: HEIGHT,
-            webPreferences: {
-                contextIsolation: true,
-                preload: path.resolve(__dirname, "preload.js"),
-                devTools: true // its enable devTools not turn on | read documentation
-            }
         });
-        this.loadAppliocation();
-        this.setupWindowListener();
-        new IPCController(this.mainWindow);
     }
 
-    private loadAppliocation(): void {
-        log.debug("Application started")
-        this.mainWindow?.loadFile("index.html");
-    }
-
-    private setupWindowListener() {
-        if (!this.mainWindow) return;
-
-        this.mainWindow?.on("close", () => {
-            //todo somthing when you close app:D
+    private createMainWindow(): void {
+        const window = new WindowBuilder()
+        .setSize(980, 1200)
+        .setTitle("ArtReader")
+        .setWebPreference({
+            preload: path.join(__dirname, "preload.js"),
+            contextIsolation: true,
+            nodeIntegration: true,
+            webSecurity: true,
         })
+        .build();
+
+        this.managerWindow.register("main", window);
+
+        new IPCController(window);
+        window.loadFile("index.html");
     }
+
+    private createChildWindow() {}
 
     private setupGlobalShortcut() {
         globalShortcut.register("Alt+CommandOrControl+I", () => {
             log.debug("Pressed 'Alt+CommandOrControl+I'")
-            this.mainWindow!.webContents.openDevTools();
+            this.managerWindow.getWindow("main")?.webContents.openDevTools();
         })
     }
 }
