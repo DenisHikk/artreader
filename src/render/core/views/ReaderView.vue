@@ -1,7 +1,7 @@
 <template>
-    <div class="readerContainer">
-        <div class="textLayer" ref="textLayerRef"></div>
-        <canvas class="canvas" ref="canvasRef"></canvas>
+    <div class="readerContainer" ref="container">
+        <!-- <div class="textLayer" ref="textLayerRef"></div>
+        <canvas class="canvas" ref="canvasRef"></canvas> -->
     </div>
 </template>
 
@@ -14,50 +14,44 @@ import { onMounted, ref } from "vue";
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const textLayerRef = ref<HTMLDivElement | null>(null);
 const pdfRenderService = new PDFRenderService();
-//TODO: fix canvas size and make page switching
+const container = ref<HTMLDivElement | null>(null);
+let page = ref(1);
 onMounted(async () => {
-    if (!canvasRef || !textLayerRef) {
-        return;
-    }
+    const filePath = await window.api.getFilePath();
+    const file = await window.api.openFile(filePath);
+    await pdfRenderService.readFile(file);
 
-    const ctx = canvasRef.value?.getContext("2d");
-    if (!ctx) {
-        return;
-    }
+    const numPages = pdfRenderService.getPageCount();
 
-    try {
-        const filePath = await window.api.getFilePath();
-        const file = await window.api.openFile(filePath);
-        await pdfRenderService.readFile(file)
-        await pdfRenderService.getPage(2);
+    const ratio = window.devicePixelRatio || 1;
+
+    for (let i = 1; i <= numPages; i++) {
+        await pdfRenderService.getPage(i);
         const baseViewport = pdfRenderService.getViewport(1.0, 0, false);
-        const ratio = window.devicePixelRatio || 1;
+        const availableWidth = window.innerWidth;
+        const scale = availableWidth / baseViewport.width;
+        const viewport = pdfRenderService.getViewport(scale, 0, false);
 
-        const availableHeight = window.innerHeight;
-        const scale = availableHeight / baseViewport.height;
-        const pageViewport = pdfRenderService.getViewport(scale, 0, false)
-        if (!canvasRef.value || !textLayerRef.value) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = viewport.width * ratio;
+        canvas.height = viewport.height * ratio;
+        canvas.style.width = `${viewport.width}px`;
+        canvas.style.height = `${viewport.height}px`;
+
+        if(!container || !container.value || !ctx) {
             return;
         }
 
-        canvasRef.value.width = pageViewport.width;
-        canvasRef.value.height = pageViewport.height;
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-        canvasRef.value.style.width = `${pageViewport.width}`;
-        canvasRef.value.style.height = `${pageViewport.height}`;
-
-        textLayerRef.value.style.width = `${canvasRef.value.style.width}px`;
-        textLayerRef.value.style.height = `${canvasRef.value.style.height}px`;
-
-        ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
-
-        await pdfRenderService.render(ctx, pageViewport)
-    } catch (err) {
-        log.error(err);
+        container.value.appendChild(canvas);
+        await pdfRenderService.render(ctx, viewport);
     }
-})
-
+});
 </script>
+
+
 
 <style lang="scss">
 body {
@@ -68,9 +62,15 @@ body {
     margin: 0 auto;
 }
 
-// .readerContainer {
-//     width: 100vw;
-//     height: 100vh;
-//     overflow: hidden;
-// }
+.readerContainer {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+canvas {
+  display: block;
+  margin: 20px auto;
+}
+
 </style>
+

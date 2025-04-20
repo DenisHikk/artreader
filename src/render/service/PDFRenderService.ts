@@ -94,4 +94,12 @@ export class PDFRenderService {
             dontFlip,
         });
     }
+
+
+    public getPageCount(): number {
+        if(!this.pdfDoc) {
+            throw new Error("Error")
+        }
+        return this.pdfDoc.numPages;
+    }
 }
