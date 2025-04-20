@@ -5,6 +5,7 @@ declare global {
             openFile: (path: string)=>Promise<ArrayBuffer>,
             workerDir: () => Promise<string>
             openReaderWindow(file: string):void
+            getFilePath(): Promise<string>
         }
     }
 }

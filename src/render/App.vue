@@ -35,8 +35,8 @@ const toggleLeftDrawer = () => {
 
 
 const openFile = async () => {
-    const file = await window.api.dialogOpenFile();
-    window.api.openReaderWindow(file);
+    const filePath = await window.api.dialogOpenFile();
+    window.api.openReaderWindow(filePath);
 }
 
 </script>

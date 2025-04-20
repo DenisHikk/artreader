@@ -38,7 +38,12 @@ export class IPCController {
         ipcMain.handle(
             IPCChannels.OPEN_FILE,
             async (_, file: string): Promise<ArrayBuffer> => {
-                return readFile(file);
+                try {
+                    return readFile(file);
+                } catch(err) {
+                    log.error(`Error while reading file: ${err}`);
+                    throw new Error("Error");
+                }
             }
         )
     }
@@ -55,8 +60,8 @@ export class IPCController {
     private openReaderWindow() {
         ipcMain.handle(
             IPCChannels.OPEN_READER_WINDOW,
-            async(event, file) => {
-                log.debug(`event: ${event.processId}, file`)
+            async(event, file: string) => {
+                log.debug(`file ${file}`)
                 const windowReader = new WindowBuilder()
                 .setSize(980, 1200)
                 .setTitle(file.split(".")[1])
@@ -69,6 +74,9 @@ export class IPCController {
                 .build();
                 this.windowManager.register(`reader${windowReader.id}`, windowReader);
                 windowReader.loadFile("reader.html");
+                windowReader.webContents.once("did-finish-load", () => {
+                    windowReader.webContents.send(IPCChannels.GET_FILE_PATH, file)
+                })
             }
         )
     }
