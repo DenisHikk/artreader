@@ -1,4 +1,5 @@
 import { BrowserWindow } from "electron";
+import log from "electron-log/main";
 
 export class WindowManager {
     private windowsMap: Map<string, BrowserWindow> = new Map();

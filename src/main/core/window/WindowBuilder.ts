@@ -15,6 +15,12 @@ export class WindowBuilder {
         return this;
     }
 
+    setMinize(width: number, height: number) {
+        this.options.minWidth = width;
+        this.options.minHeight = height;
+        return this;
+    }
+
     setTitle(title: string): this {
         this.options.title = title;
         return this;

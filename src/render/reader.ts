@@ -1,4 +1,3 @@
-import App from "./App.vue"
 import { createApp } from "vue"
 import log from "electron-log/renderer"
 import quasarLang from 'quasar/lang/ru'
@@ -7,13 +6,11 @@ import * as quasarComponents from 'quasar';
 import "@/render/core/style/quasar.variables.sass"
 import "@/render/core/style/quasar.style.sass"
 import "@quasar/extras/material-icons/material-icons.css"
+import ReaderView from "./core/views/ReaderView.vue"
 log.variables.label = "render";
 
-
-
-
-const app = createApp(App);
-app.use(Quasar, {
+const reader = createApp(ReaderView);
+reader.use(Quasar, {
     lang: quasarLang,
     components: quasarComponents,
     plugins: {},
@@ -21,5 +18,5 @@ app.use(Quasar, {
     framework: {
         IconSet: "material-icons",
     }
-})
-app.mount("#q-app");
+});
+reader.mount("#q-reader");

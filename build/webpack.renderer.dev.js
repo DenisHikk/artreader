@@ -6,10 +6,13 @@ const sass = require("sass");
 
 module.exports = {
     mode: "development",
-    entry: path.resolve(__dirname, "../src/render/main.ts"),
+    entry: {
+        main: path.resolve(__dirname, "../src/render/main.ts"),
+        reader: path.resolve(__dirname, "../src/render/reader.ts")
+    },
     output: {
         path: path.resolve(__dirname, "../dist"),
-        filename: "render.js"
+        filename: "script/[name].js"
     },
     module: {
         rules: [
@@ -57,7 +60,7 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                { from: "./src/static" },
+                { from: "./src/static"},
                 { from: "./node_modules/pdfjs-dist/web/pdf_viewer.css"}
             ]
         }),

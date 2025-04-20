@@ -6,7 +6,7 @@ import { WindowBuilder } from "../window/WindowBuilder";
 import { WindowManager } from "../window/WindowManager";
 
 export class AppController {
-    private managerWindow = new WindowManager();
+    private windowManager = new WindowManager();
     private isDev: boolean = process.env.NODE_ENV === "development" ? true : false;
 
     constructor() {
@@ -32,7 +32,8 @@ export class AppController {
 
     private createMainWindow(): void {
         const window = new WindowBuilder()
-        .setSize(980, 1200)
+        .setSize(600, 800)
+        .setMinize(500, 700)
         .setTitle("ArtReader")
         .setWebPreference({
             preload: path.join(__dirname, "preload.js"),
@@ -41,19 +42,19 @@ export class AppController {
             webSecurity: true,
         })
         .build();
-
-        this.managerWindow.register("main", window);
-
-        new IPCController(window);
+        this.windowManager.register(`reader${window.id}`, window);
+        new IPCController(window, this.windowManager);
         window.loadFile("index.html");
     }
-
-    private createChildWindow() {}
 
     private setupGlobalShortcut() {
         globalShortcut.register("Alt+CommandOrControl+I", () => {
             log.debug("Pressed 'Alt+CommandOrControl+I'")
-            this.managerWindow.getWindow("main")?.webContents.openDevTools();
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            if(!focusedWindow) {
+                throw new Error("Cannot get focused window:/");
+            }
+            focusedWindow.webContents.openDevTools();
         })
     }
 }
