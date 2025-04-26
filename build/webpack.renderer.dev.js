@@ -61,7 +61,7 @@ module.exports = {
         new CopyWebpackPlugin({
             patterns: [
                 { from: "./src/static"},
-                { from: "./node_modules/pdfjs-dist/web/pdf_viewer.css"}
+                // { from: "./node_modules/pdfjs-dist/web/pdf_viewer.css"}
             ]
         }),
     ],
@@ -70,6 +70,7 @@ module.exports = {
         alias: {
             "@": path.resolve(__dirname, "../src"),
             "vue$": "vue/dist/vue.esm-bundler.js",
+            "@common": "../src/common/"
         },
     },
     devServer: {

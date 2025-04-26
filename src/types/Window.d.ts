@@ -1,3 +1,5 @@
+import { IPlugin } from "@/common/interface/IPlugin"
+
 declare global {
     interface Window {
         api: {
@@ -6,6 +8,9 @@ declare global {
             workerDir: () => Promise<string>
             openReaderWindow(file: string):void
             getFilePath(): Promise<string>
+        }
+        plugins: {
+            getPlugins: () => Promise<IPlugin[]>
         }
     }
 }
