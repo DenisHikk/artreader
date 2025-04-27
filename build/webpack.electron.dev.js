@@ -4,8 +4,8 @@ module.exports = {
     target: "electron-renderer",
     mode: "development",
     entry: {
-        main: path.resolve(__dirname, "../src/main/main.ts"),
-        preload: path.resolve(__dirname, "../src/main/preload.ts")
+        main: path.resolve(__dirname, "../src/platform/main.ts"),
+        preload: path.resolve(__dirname, "../src/platform/preload.ts")
     },
     output: {
         path: path.resolve(__dirname, "../dist"),
@@ -13,7 +13,8 @@ module.exports = {
     },
     module: {
         rules: [
-            {test: /\.ts$/, use: "ts-loader"},
+            { test: /\.ts$/, use: "ts-loader" },
+            { test: /\.node$/, use: "node-loader" }
         ]
     },
     resolve: {
@@ -24,6 +25,6 @@ module.exports = {
         }
     },
     plugins: [
-        
+
     ],
 }

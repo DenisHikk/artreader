@@ -1,6 +1,6 @@
 import { IPCChannels } from "@/types/IPCChannels";
 import { BrowserWindow, dialog, ipcMain } from "electron";
-import { readFile } from "@/platfrom/core/models/fileManager";
+import { readFile } from "@/platform/core/models/fileManager";
 import path from "path";
 import log from "electron-log/main";
 import { WindowManager } from "../window/WindowManager";

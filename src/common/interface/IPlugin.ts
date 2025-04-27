@@ -4,6 +4,6 @@ export interface IPlugin {
     name: string;
     version: string,
     description: string,
-    activateMain(pluginContext: IPluginContext): void;
-    activateRenderer(pluginContext: IPluginContext): void;
+    activate(pluginContext: IPluginContext): void;
+    deactivate(pluginContext: IPluginContext): void;
 }
