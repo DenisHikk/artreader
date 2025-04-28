@@ -52,6 +52,7 @@ export class PluginsManager implements IPluginContext {
     async init() {
         await this.loadPlugins();
         this.plugins.forEach(plugin => {
+
             plugin.activate(this);
         })
     }

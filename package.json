@@ -4,7 +4,7 @@
   "description": "Reader for PDF, djvi with notes and bookmarks",
   "main": "dist/main.js",
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf dist && rimraf node_modules",
     "build:render": "webpack -c ./build/webpack.renderer.dev.js --progress --mode development",
     "watch:render": "npm run build:render && webpack serve --config ./build/webpack.renderer.dev.js --mode development --hot",
     "build:electron": "webpack -c ./build/webpack.electron.dev.js --progress --mode development",
@@ -12,7 +12,7 @@
     "build:launch": "npm run build:render && npm run build:electron && electron ./dist/main.js",
     "eslint": "eslint --ext .ts,.vue src",
     "test": "echo Error Fish:D",
-    "build:release": "npm run build:render && npm run build:electron && electron-builder --dir -w -c ./build/electron-builder.release.js"
+    "build:release": "npm run build:render && npm run build:electron && electron-builder -w -c ./build/electron-builder.release.js"
   },
   "author": "Team ArtReader",
   "license": "MIT",

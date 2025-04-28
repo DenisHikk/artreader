@@ -44,7 +44,7 @@ export class AppController {
         .build();
         this.windowManager.register(`reader${window.id}`, window);
         new IPCController(window, this.windowManager);
-        window.loadFile("dist/index.html");
+        window.loadFile("index.html");
     }
 
     private setupGlobalShortcut() {
