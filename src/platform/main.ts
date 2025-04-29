@@ -1,5 +1,5 @@
 import { AppController } from "./core/controllers/AppController";
-import { PluginsManager } from "./core/models/PluginsManager";
+import { PluginsManager } from "./core/plugins/PluginsManager";
 import { settingLog } from "./core/utils/Logger";
 import dotenv from "dotenv";
 

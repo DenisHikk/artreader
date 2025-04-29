@@ -5,7 +5,7 @@ module.exports = {
     mode: "development",
     entry: {
         main: path.resolve(__dirname, "../src/platform/main.ts"),
-        preload: path.resolve(__dirname, "../src/platform/preload.ts")
+        mainPreload: path.resolve(__dirname, "../src/preload/mainPreload.ts")
     },
     output: {
         path: path.resolve(__dirname, "../dist"),

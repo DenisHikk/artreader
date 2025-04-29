@@ -15,7 +15,7 @@ export class WindowBuilder {
         return this;
     }
 
-    setMinize(width: number, height: number) {
+    setMinimize(width: number, height: number) {
         this.options.minWidth = width;
         this.options.minHeight = height;
         return this;

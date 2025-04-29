@@ -66,9 +66,9 @@ export class IPCController {
                 .setSize(980, 1200)
                 .setTitle(file.split(".")[1])
                 .setWebPreference({
-                            preload: path.join(__dirname, "preload.js"),
+                            preload: path.join(__dirname, "mainPreload.js"),
                             contextIsolation: true,
-                            nodeIntegration: true,
+                            nodeIntegration: false,
                             webSecurity: true,
                 })
                 .build();
