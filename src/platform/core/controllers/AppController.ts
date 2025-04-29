@@ -7,11 +7,10 @@ import { WindowManager } from "../window/WindowManager";
 
 export class AppController {
     private windowManager = new WindowManager();
-    private isDev: boolean = process.env.NODE_ENV === "development" ? true : false;
+    private isDev: boolean = process.env.MODE === "development" ? true : false;
 
     constructor() {
         this.setupAppLifeCycle();
-        log.debug(`proccess.env: ${process.env.MODE}`);
         log.initialize({ preload: true });
     }
 
@@ -33,18 +32,18 @@ export class AppController {
     private createMainWindow(): void {
         const window = new WindowBuilder()
         .setSize(600, 800)
-        .setMinize(500, 700)
+        .setMinimize(500, 700)
         .setTitle("ArtReader")
         .setWebPreference({
-            preload: path.join(__dirname, "preload.js"),
+            preload: path.join(__dirname, "mainPreload.js"),
             contextIsolation: true,
-            nodeIntegration: true,
+            nodeIntegration: false,
             webSecurity: true,
         })
         .build();
         this.windowManager.register(`reader${window.id}`, window);
         new IPCController(window, this.windowManager);
-        window.loadFile("index.html");
+        window.loadFile(path.resolve(__dirname,"index.html"));
     }
 
     private setupGlobalShortcut() {

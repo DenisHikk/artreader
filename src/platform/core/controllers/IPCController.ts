@@ -1,6 +1,6 @@
 import { IPCChannels } from "@/types/IPCChannels";
 import { BrowserWindow, dialog, ipcMain } from "electron";
-import { readFile } from "@/main/core/models/fileManager";
+import { readFile } from "@/platform/core/models/fileManager";
 import path from "path";
 import log from "electron-log/main";
 import { WindowManager } from "../window/WindowManager";
@@ -66,9 +66,9 @@ export class IPCController {
                 .setSize(980, 1200)
                 .setTitle(file.split(".")[1])
                 .setWebPreference({
-                            preload: path.join(__dirname, "preload.js"),
+                            preload: path.join(__dirname, "mainPreload.js"),
                             contextIsolation: true,
-                            nodeIntegration: true,
+                            nodeIntegration: false,
                             webSecurity: true,
                 })
                 .build();

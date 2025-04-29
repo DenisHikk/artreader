@@ -1,76 +1,62 @@
 <template>
-    <div class="readerContainer" ref="container">
-        <!-- <div class="textLayer" ref="textLayerRef"></div>
-        <canvas class="canvas" ref="canvasRef"></canvas> -->
+    <div class="reader-container" ref="container">
+        <div class="page-container" ref="pageContainer"></div>
     </div>
 </template>
 
 
 <script setup lang="ts">
-import { PDFRenderService } from "@/render/service/PDFRenderService";
 import log from "electron-log/renderer"
+import { getDocument } from "pdfjs-dist";
 import { onMounted, ref } from "vue";
+document.documentElement.style.setProperty('--total-scale-factor', '1.2');
 
-const canvasRef = ref<HTMLCanvasElement | null>(null);
-const textLayerRef = ref<HTMLDivElement | null>(null);
-const pdfRenderService = new PDFRenderService();
+
+
 const container = ref<HTMLDivElement | null>(null);
-let page = ref(1);
 onMounted(async () => {
     const filePath = await window.api.getFilePath();
-    const file = await window.api.openFile(filePath);
-    await pdfRenderService.readFile(file);
-
-    const numPages = pdfRenderService.getPageCount();
-
-    const ratio = window.devicePixelRatio || 1;
-
-    for (let i = 1; i <= numPages; i++) {
-        await pdfRenderService.getPage(i);
-        const baseViewport = pdfRenderService.getViewport(1.0, 0, false);
-        const availableWidth = window.innerWidth;
-        const scale = availableWidth / baseViewport.width;
-        const viewport = pdfRenderService.getViewport(scale, 0, false);
-
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.width = viewport.width * ratio;
-        canvas.height = viewport.height * ratio;
-        canvas.style.width = `${viewport.width}px`;
-        canvas.style.height = `${viewport.height}px`;
-
-        if(!container || !container.value || !ctx) {
-            return;
-        }
-
-        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-        container.value.appendChild(canvas);
-        await pdfRenderService.render(ctx, viewport);
-    }
 });
-</script>
 
+</script>
 
 
 <style lang="scss">
 body {
-    background-color: #aeaeae;
+    background-color: #333333;
 }
 
-.canvas {
-    margin: 0 auto;
-}
-
-.readerContainer {
-  width: 100%;
-  padding: 0;
-  margin: 0;
-}
 canvas {
-  display: block;
-  margin: 20px auto;
+    display: block;
+    margin: 10px auto 10px auto;
 }
 
+span {
+    position: absolute;
+}
+
+.text-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    text-align: initial;
+    inset: 0;
+    overflow: clip;
+    opacity: 1;
+    line-height: 1;
+    text-size-adjust: none;
+    forced-color-adjust: none;
+    transform-origin: 0 0;
+    caret-color: CanvasText;
+    z-index: 20; //change to 0
+}
+
+.page-container {
+    position: relative;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    height: auto;
+}
 </style>
 

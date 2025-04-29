@@ -3,5 +3,6 @@ export enum IPCChannels {
     OPEN_FILE = "openFile",
     WORKER_DIR = "workerDir",
     OPEN_READER_WINDOW = "openReaderWindow",
-    GET_FILE_PATH = "getFilePath"
+    GET_FILE_PATH = "getFilePath",
+    GET_PLUGINS = "getPlugins"
 }
