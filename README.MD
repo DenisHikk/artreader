@@ -51,7 +51,7 @@ npm run build:launch
 # Launch the app
 npm run launch
 
-# Build production-ready application (TODO)
+# Build production-ready application
 npm run build:release
 
 # Run tests (TODO)
