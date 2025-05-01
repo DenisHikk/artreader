@@ -9,13 +9,23 @@
 import log from "electron-log/renderer"
 import { getDocument } from "pdfjs-dist";
 import { onMounted, ref } from "vue";
-document.documentElement.style.setProperty('--total-scale-factor', '1.2');
 
+import { Reader } from "../service/Reader";
+import { PluginsManagerRender } from "../models/plugins/PluginsManagerRender";
+import { EPUBReader } from "../models/plugins/EPUBReader";
+import { PDFReader } from "../models/plugins/PDFReader";
 
-
+const reader = new Reader();
 const container = ref<HTMLDivElement | null>(null);
+PluginsManagerRender.getInstance().registryReader(new PDFReader());
+PluginsManagerRender.getInstance().registryReader(new EPUBReader());
 onMounted(async () => {
     const filePath = await window.api.getFilePath();
+    await reader.load(filePath);
+    if(!container.value) {
+        throw new Error("I can't find container");
+    }
+    await reader.render(container.value);
 });
 
 </script>
@@ -29,26 +39,6 @@ body {
 canvas {
     display: block;
     margin: 10px auto 10px auto;
-}
-
-span {
-    position: absolute;
-}
-
-.text-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    text-align: initial;
-    inset: 0;
-    overflow: clip;
-    opacity: 1;
-    line-height: 1;
-    text-size-adjust: none;
-    forced-color-adjust: none;
-    transform-origin: 0 0;
-    caret-color: CanvasText;
-    z-index: 20; //change to 0
 }
 
 .page-container {
