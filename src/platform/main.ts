@@ -7,6 +7,6 @@ dotenv.config();
 settingLog();
 
 const pluginsManager = new PluginsManager();
-await pluginsManager.init(); 
+await pluginsManager.init();
 
 new AppController();
