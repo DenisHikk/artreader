@@ -40,7 +40,7 @@ export class PDFReader implements IReader {
         }
     }
 
-    async render(container: HTMLElement, renderMode: RenderMode, numPage: number = 1): Promise<void> {
+    async render(container: HTMLElement, numPage: number = 1): Promise<void> {
         const page = await this.pdfDoc?.getPage(numPage);
         if(!page) {
             throw new Error("Page not found");

@@ -86,12 +86,12 @@ async function renderPDF() {
 
         const pageDivs = container.querySelectorAll(".container-pdf");
         for(const [index, pageDiv] of Array.from(pageDivs).entries()) {
-            await pdfReader.render(pageDiv as HTMLDivElement, RenderMode.SINGLE, index + 1);
+            await pdfReader.render(pageDiv as HTMLDivElement, index + 1);
         }
     } else {
         const container = containerSinglePage.value;
         if (!container) return;
-        await pdfReader.render(container, RenderMode.SINGLE, currentPage.value);
+        await pdfReader.render(container, currentPage.value);
     }
 }
 
