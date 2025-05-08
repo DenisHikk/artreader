@@ -1,21 +1,17 @@
 import { IReader } from "@/common/interface/IReader";
 
-
-
 import log from "electron-log/renderer"
-import { GlobalWorkerOptions, PDFDocumentProxy, PDFWorker, getDocument } from "pdfjs-dist";
-import { h, ref } from "vue";
+import { GlobalWorkerOptions, PDFDocumentProxy, PDFWorker, TextLayer, Util, getDocument } from "pdfjs-dist";
+import { TextContent } from "pdfjs-dist/types/src/display/api";
+
 
 export class PDFReader implements IReader {
     private worker: PDFWorker | null = null;
     private pdfDoc: PDFDocumentProxy | null = null;
-    private currentPage: number = 1;
     private settings = {
-        canvas: {
-            width: 595,
-            height: 842,
-            scale: 1.3
-        }
+        width: 595,
+        height: 842,
+        scale: 1.3
     }
 
     canHandle(file: string | File): boolean {
@@ -34,45 +30,104 @@ export class PDFReader implements IReader {
             url: url,
             worker: this.worker
         })
-
         try {
             this.pdfDoc = await loadingTask.promise
-            log.debug("Create pdfDoc!");
+            log.debug("Load pdfDoc!");
         } catch (err) {
-            log.error(`Something wrong with laod PDF file: ${err}`);
+            log.error(`Something wrong with load PDF file, i don't know, maybe you know: ${err}`);
             throw err;
         }
     }
-    // TODO: Write render
+
     /*
-    h(
-        tag: string | Component,
-        props?: object,
-        children?: string | VNode | VNode[]
-    )
-  */
-    async render(container: HTMLElement): Promise<void> {
-        const page = await this.pdfDoc?.getPage(this.currentPage);
-        const viewport = page?.getViewport({scale: this.settings.canvas.scale});
+        .reader_container -> .page_container -> canvas && .text_layer 
+    */
+   //scale, rotation, offsetX, offsetY, dontFlip,
+    async render(container: HTMLElement, numPage: number): Promise<void> {
+        const page = await this.pdfDoc?.getPage(numPage);
+        const viewport = page?.getViewport({
+            scale: this.settings.scale,
+            rotation: 0,
+            offsetX: 0,
+            offsetY: 0,
+            dontFlip: false
+        });
 
-        const canvas = document.createElement("canvas");
-        canvas.width = viewport!.width;
-        canvas.height = viewport!.height;
-
+        const textLayer = container.getElementsByTagName("div")[0];
+        const canvas = container.getElementsByTagName("canvas")[0];
         const ctx = canvas.getContext("2d");
-        if(!ctx) {
-            throw new Error("Can't create context");
-        }
         if(!viewport) {
             throw new Error("Can't create viewport");
         }
+        if(!ctx) {
+            throw new Error("Can't create context");
+        }
+        canvas.width = viewport!.width;
+        canvas.height = viewport!.height;
 
-        container.appendChild(canvas);
+        textLayer.style.width = `${canvas.width}px`;
+        textLayer.style.height = `${canvas.height}px`;
 
-        
+        container.style.width = `${canvas.width}px`;
+        container.style.height = `${canvas.height}px`
+
         const renderTask = page?.render({canvasContext: ctx, viewport});
         await renderTask?.promise;
+
+        const textContent = await page?.getTextContent();
+        
+        // const textLayerBlock = new TextLayer({
+        //     textContentSource: textContent as TextContent,
+        //     container: textLayer,
+        //     viewport: viewport
+        // });
+
+        textLayer.style.setProperty("--total-scale-factor", viewport.scale.toString());
+        // await textLayerBlock.render();
+
+        // example how it work
+        // left: 26.49%;
+        // top: 5.21%;
+        // font-size: calc(var(--total-scale-factor)* 14.04px);
+        // font-family: sans-serif;
+        // transform: scaleX(0.903903);
+
+        // matrix
+        //fontSize: 14.04
+        //?0
+        //?0
+        //fontSize: 14.04
+        //x: 42.6
+        //y: 207.05
+
+        if(textContent) {
+            textLayer.innerHTML = "";
+            textContent.items.forEach(item => {
+                if("str" in item ) {
+                    if(item.str === " ") {
+                        return;
+                    }
+                    const span = document.createElement("span");
+                    const [a,b,c,d,e,f] = item.transform;
+                    const [x,y] = viewport.convertToViewportPoint(e,f);
+                    span.setAttribute("dir", item.dir);
+                    span.style.fontFamily = `${textContent.styles[item.fontName]}, system-ui`;
+
+                    span.style.left = `${(x / viewport.width) * 100}%`
+                    span.style.top = `${(((y - d) / viewport.height) * 100)}%`
+                    span.style.transformOrigin = "left top";
+                    span.style.fontSize = `calc(var(--total-scale-factor) * ${a}px)`;
+                    span.innerText = item.str;
+                    textLayer.appendChild(span);
+                    const scaleX = item.width * viewport.scale / span.getBoundingClientRect().width;
+                    span.style.transform = `scaleX(${scaleX})`;
+                }
+            })
+        }
+
+
     }
+
     nextPage(): void {
         throw new Error("Method not implemented.");
     }
@@ -95,25 +150,10 @@ export class PDFReader implements IReader {
         this.pdfDoc = null;
     }
 
+    getTotalPages(): number {
+        if(!this.pdfDoc) {
+            throw new Error("Upload file first!")
+        }
+        return this.pdfDoc.numPages;
+    }
 }
-
-
-// span {
-//     position: absolute;
-// }
-
-// .text-layer {
-//     position: absolute;
-//     top: 0;
-//     left: 0;
-//     text-align: initial;
-//     inset: 0;
-//     overflow: clip;
-//     opacity: 1;
-//     line-height: 1;
-//     text-size-adjust: none;
-//     forced-color-adjust: none;
-//     transform-origin: 0 0;
-//     caret-color: CanvasText;
-//     z-index: 20; //change to 0
-// }
