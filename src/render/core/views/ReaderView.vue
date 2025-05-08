@@ -1,21 +1,27 @@
 <template>
-    <div class="reader-container" ref="container">
-        <div class="page-container" ref="pageContainer"></div>
-    </div>
+    <PDFRaderView :file="filePath" v-if="filePath" />
 </template>
 
 
 <script setup lang="ts">
 import log from "electron-log/renderer"
-import { getDocument } from "pdfjs-dist";
 import { onMounted, ref } from "vue";
-document.documentElement.style.setProperty('--total-scale-factor', '1.2');
+
+import PDFRaderView from "../views/PDFReaderView.vue";
+
+import { PluginsManagerRender } from "../models/plugins/PluginsManagerRender";
+import { EPUBReader } from "../models/plugins/EPUBReader";
+import { PDFReader } from "../models/plugins/PDFReader";
 
 
+const filePath = ref<string | null>("");
 
-const container = ref<HTMLDivElement | null>(null);
+// remove after create pdf and epub work onlu for develop
+PluginsManagerRender.getInstance().registryReader(new PDFReader());
+PluginsManagerRender.getInstance().registryReader(new EPUBReader());
+
 onMounted(async () => {
-    const filePath = await window.api.getFilePath();
+    filePath.value = await window.api.getFilePath();
 });
 
 </script>
@@ -26,37 +32,5 @@ body {
     background-color: #333333;
 }
 
-canvas {
-    display: block;
-    margin: 10px auto 10px auto;
-}
-
-span {
-    position: absolute;
-}
-
-.text-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    text-align: initial;
-    inset: 0;
-    overflow: clip;
-    opacity: 1;
-    line-height: 1;
-    text-size-adjust: none;
-    forced-color-adjust: none;
-    transform-origin: 0 0;
-    caret-color: CanvasText;
-    z-index: 20; //change to 0
-}
-
-.page-container {
-    position: relative;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    height: auto;
-}
 </style>
 

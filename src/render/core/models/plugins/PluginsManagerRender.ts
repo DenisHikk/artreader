@@ -3,8 +3,8 @@ import { IPluginContext } from "@/common/interface/IPluginContext";
 import { IReader } from "@/common/interface/IReader";
 import log from "electron-log/renderer"
 
-export class PluginsManager implements IPluginContext {
-    private static INSTANCE: PluginsManager; 
+export class PluginsManagerRender implements IPluginContext {
+    private static INSTANCE: PluginsManagerRender; 
     
     private plugins: IPlugin[] = [];
     private reader: IReader[] = [];
@@ -16,11 +16,11 @@ export class PluginsManager implements IPluginContext {
         this.registryPlugins();
     }
 
-    public static getInstance(): PluginsManager {
-        if(!PluginsManager.INSTANCE) {
-            PluginsManager.INSTANCE = new PluginsManager();
+    public static getInstance(): PluginsManagerRender {
+        if(!PluginsManagerRender.INSTANCE) {
+            PluginsManagerRender.INSTANCE = new PluginsManagerRender();
         }
-        return PluginsManager.INSTANCE;
+        return PluginsManagerRender.INSTANCE;
     }
 
     private registryPlugins() {
