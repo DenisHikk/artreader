@@ -13,18 +13,6 @@ export class EPUBReader implements IReader {
     render(container: HTMLElement): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    nextPage(): void {
-        throw new Error("Method not implemented.");
-    }
-    prevPage(): void {
-        throw new Error("Method not implemented.");
-    }
-    goToPage(pageNumber: number): void {
-        throw new Error("Method not implemented.");
-    }
-    getCurrentPage(): number {
-        throw new Error("Method not implemented.");
-    }
     destroy(): void {
         throw new Error("Method not implemented.");
     }

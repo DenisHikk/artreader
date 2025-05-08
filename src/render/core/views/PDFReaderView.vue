@@ -1,51 +1,117 @@
 <template>
-    <div ref="containerPdf">
-        <div
-            v-for="page in totalPages"
-            :key="page"
-            ref="pageContainers"
-            class="container-pdf">
-            <canvas></canvas>
-            <div class="text_layer"></div>
-        </div>
-    </div>
+    <q-layout view="hHh lpR fFf">
+
+        <q-header elevated class="bg-primary text-white">
+            <q-toolbar>
+                <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
+
+                <q-toolbar-title>
+                    <q-btn-toggle v-model="renderMode" class="" no-caps rounded unelevated toggle-color="secondary"
+                        color="white" text-color="primary" :options="[
+                                { label: 'Одиночная', value: RenderMode.SINGLE },
+                                { label: 'Все страницы', value: RenderMode.ALL_PAGES }
+                            ]" />
+                </q-toolbar-title>
+
+                <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
+            </q-toolbar>
+        </q-header>
+
+        <q-page-container>
+            <div>
+                <div ref="containerAllPages" v-if="renderMode === RenderMode.ALL_PAGES">
+                    <div v-for="page in totalPages" :key="page" class="container-pdf">
+                        <canvas></canvas>
+                        <div class="text_layer"></div>
+                    </div>
+                </div>
+                <div v-else ref="containerSinglePage" class="container-pdf">
+                    <canvas></canvas>
+                    <div class="text_layer"></div>
+                </div>
+            </div>
+        </q-page-container>
+        <q-footer class="bg-grey-2 text-black" v-if="renderMode === RenderMode.SINGLE">
+            <q-toolbar class="justify-between">
+                <q-btn flat icon="chevron_left" label="Назад" @click="prevPage" :disable="currentPage === 1" />
+                <div class="q-mx-auto">Страница {{ currentPage }} из {{ totalPages }}</div>
+                <q-btn flat @click="nextPage" :disable="currentPage === totalPages">
+                    <q-icon name="chevron_right" />
+                    Дальше
+                </q-btn>
+            </q-toolbar>
+        </q-footer>
+    </q-layout>
 </template>
 
 <script setup lang="ts">
 import log from "electron-log/renderer";
 
-import { nextTick, onBeforeMount, onMounted, onUpdated, ref } from "vue";
+import { nextTick, onBeforeMount, onMounted, onUpdated, ref, watch } from "vue";
 import { PDFReader } from "../models/plugins/PDFReader";
+import { RenderMode } from "../models/plugins/RenderMode";
 
 const props = defineProps<{file: string}>();
 
 const totalPages = ref<number>(0);
+const currentPage = ref(1);
 
-const containerPdf = ref<HTMLDivElement | null>(null);
-const pageContainers = ref<HTMLElement[]>([]);
+const containerAllPages = ref<HTMLDivElement | null>(null);
+const containerSinglePage = ref<HTMLDivElement | null>(null);
 
 const pdfReader = new PDFReader();
 
-onBeforeMount(async () => {
+const renderMode = ref(RenderMode.ALL_PAGES);
 
-});
+const leftDrawerOpen = ref(false)
+const rightDrawerOpen = ref(false)
+
+watch(renderMode, async (mode) => {
+    await nextTick();
+    await renderPDF();
+})
 
 onMounted(async () => {
     await pdfReader.load(props.file);
     totalPages.value = pdfReader.getTotalPages();
-    if(!pageContainers.value) {
-        throw new Error(`Can't find pageContainer: ${pageContainers}, ${pageContainers.value}`);
-    }
     // wait render all div
     await nextTick();
-    for(const page in pageContainers.value) {
-        await pdfReader.render(pageContainers.value[page], Number.parseInt(page) + 1); // because page are counted from 1
-    }
+    await renderPDF();
 });
 
-onUpdated(async () => {
+async function renderPDF() {
+    if(renderMode.value === RenderMode.ALL_PAGES) {
+        const container = containerAllPages.value;
+        if(!container) return;
 
-})
+        const pageDivs = container.querySelectorAll(".container-pdf");
+        for(const [index, pageDiv] of Array.from(pageDivs).entries()) {
+            await pdfReader.render(pageDiv as HTMLDivElement, RenderMode.SINGLE, index + 1);
+        }
+    } else {
+        const container = containerSinglePage.value;
+        if (!container) return;
+        await pdfReader.render(container, RenderMode.SINGLE, currentPage.value);
+    }
+}
+
+function toggleLeftDrawer () {
+    leftDrawerOpen.value = !leftDrawerOpen.value
+}
+
+function toggleRightDrawer () {
+    rightDrawerOpen.value = !rightDrawerOpen.value
+}
+
+async function nextPage() {
+    currentPage.value++;
+    await renderPDF();
+}
+
+async function prevPage() {
+    currentPage.value--;
+    await renderPDF();
+}
 
 </script>
 
@@ -59,7 +125,18 @@ canvas {
 .container-pdf {
     position: relative;
     margin: 10px auto;
+    animation: fadeIn 0.5s forwards;
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .text_layer {
     position: absolute;
     top: 0;
