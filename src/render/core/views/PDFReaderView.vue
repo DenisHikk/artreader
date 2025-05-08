@@ -3,8 +3,6 @@
 
         <q-header elevated class="bg-primary text-white">
             <q-toolbar>
-                <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
-
                 <q-toolbar-title>
                     <q-btn-toggle v-model="renderMode" class="" no-caps rounded unelevated toggle-color="secondary"
                         color="white" text-color="primary" :options="[
@@ -12,8 +10,6 @@
                                 { label: 'Все страницы', value: RenderMode.ALL_PAGES }
                             ]" />
                 </q-toolbar-title>
-
-                <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
             </q-toolbar>
         </q-header>
 
@@ -36,8 +32,8 @@
                 <q-btn flat icon="chevron_left" label="Назад" @click="prevPage" :disable="currentPage === 1" />
                 <div class="q-mx-auto">Страница {{ currentPage }} из {{ totalPages }}</div>
                 <q-btn flat @click="nextPage" :disable="currentPage === totalPages">
+                    <span>Дальше</span>
                     <q-icon name="chevron_right" />
-                    Дальше
                 </q-btn>
             </q-toolbar>
         </q-footer>
@@ -93,14 +89,6 @@ async function renderPDF() {
         if (!container) return;
         await pdfReader.render(container, currentPage.value);
     }
-}
-
-function toggleLeftDrawer () {
-    leftDrawerOpen.value = !leftDrawerOpen.value
-}
-
-function toggleRightDrawer () {
-    rightDrawerOpen.value = !rightDrawerOpen.value
 }
 
 async function nextPage() {
