@@ -15,13 +15,14 @@ import { PDFReader } from "../models/plugins/PDFReader";
 
 
 const filePath = ref<string | null>("");
+const props = defineProps<{filePath: string}>();
 
 // remove after create pdf and epub work onlu for develop
 PluginsManagerRender.getInstance().registryReader(new PDFReader());
 PluginsManagerRender.getInstance().registryReader(new EPUBReader());
 
 onMounted(async () => {
-    filePath.value = await window.api.getFilePath();
+    filePath.value = props.filePath;
 });
 
 </script>
