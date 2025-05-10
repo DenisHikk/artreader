@@ -54,9 +54,10 @@
         v-if="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath !== 'none'"
       >
         <div>
-          <ReaderView :filePath="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath" />
+          <ReaderView 
+            :key="activeTab"
+            :filePath="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath" />
         </div>
-        
       </div>
       
     </div>
