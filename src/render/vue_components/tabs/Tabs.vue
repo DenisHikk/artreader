@@ -4,6 +4,7 @@
     <q-tabs
       class="bg-secondary text-white"
       v-model="activeTab"
+      :key="tabs.length"
       align="left"
     >
       <q-tab
@@ -14,9 +15,12 @@
         draggable="true"
       >
         <div>
-          {{ tab.name }} {{ tab.id }}
+          <span>
+            {{ tab.name }} {{ tab.id }}
+          </span>
           <q-btn 
-            @click="deleteTab(tab.id)" 
+            @click.stop="deleteTab(tab.id)"
+            @mousedown.stop
             dense
             size="sm"
             icon="delete" 
@@ -34,21 +38,43 @@
       v-if="tabs.length !== 0"
     >
       <div>
-        Содержимое: {{ activeTab }}; Количество вкладок: {{ tabs.length }}
+        Содержимое: {{ activeTab }}; Количество вкладок: {{ tabs.length }};
+        Индекс текущей вкладки: 
+          {{ tabs.findIndex(tab => tab.id === activeTab) }}
+        Файл текущей вкладки:
+          {{ tabs[tabs.findIndex(tab => tab.id === activeTab)].filepath }}
       </div>
-      <q-btn label="Open File" />
+      
+      <div 
+        v-if="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath == 'none'"
+      >
+        <q-btn label="Open File" @click="openFile"/>
+      </div>
+      <div 
+        v-if="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath !== 'none'"
+      >
+        <div>
+          <PDFReaderView :file="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath" />
+        </div>
+        
+      </div>
+      
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import useTabs from './tabs';
+import PDFReaderView from "../../core/views/PDFReaderView.vue";
 const {
+    leftDrawerOpen,
     tabs,
     activeTab,
-  
+
+    toggleLeftDrawer,
     addTab,
     deleteTab,
+    openFile,
     onDragStart,
     onDrop
 } = useTabs();
