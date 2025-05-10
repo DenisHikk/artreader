@@ -1,6 +1,9 @@
 import { IReader } from "../../../../common/interface/IReader";
 
 export class EPUBReader implements IReader {
+    getTotalPages(): number {
+        throw new Error("Method not implemented.");
+    }
     canHandle(file: string | File): boolean {
         throw new Error("Method not implemented.");
     }
@@ -8,18 +11,6 @@ export class EPUBReader implements IReader {
         throw new Error("Method not implemented.");
     }
     render(container: HTMLElement): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
-    nextPage(): void {
-        throw new Error("Method not implemented.");
-    }
-    prevPage(): void {
-        throw new Error("Method not implemented.");
-    }
-    goToPage(pageNumber: number): void {
-        throw new Error("Method not implemented.");
-    }
-    getCurrentPage(): number {
         throw new Error("Method not implemented.");
     }
     destroy(): void {
