@@ -1,7 +1,5 @@
 <template>
     <div class="container" ref="container">
-        <div ref="pageOne" class="page1"></div>
-        <div ref="pageTwo" class="page2"></div>
     </div>
 </template>
 
@@ -17,16 +15,14 @@ const props = defineProps<{file: string}>();
 
 const epubReader = new EPUBReader();
 
-const pageOne = ref<HTMLElement | null>(null);
-const pageTwo = ref<HTMLElement | null>(null);
 
 onMounted(async () => {
     await epubReader.load(props.file);
     await nextTick();
-    if(!pageOne.value || !pageTwo.value) {
-        throw new Error("Can't create container");
+    if(!container.value) {
+        throw new Error("Can't create container EPUB");
     }
-    await epubReader.render(pageOne.value);
+    await epubReader.render(container.value);
 })
 
 window.addEventListener("keydown", async (event)=> {
@@ -45,6 +41,6 @@ window.addEventListener("keydown", async (event)=> {
     width: 595px;
     height: 842px;
     overflow: auto;
-    background-color: aqua;
+    background-color: #fff;
 }
 </style>

@@ -21,28 +21,28 @@ export class EPUBReader implements IReader {
             throw new Error("Can't load EPUB book");
         }
         this.renderTask = this.book?.renderTo(container as Element, {
-            flow: "pagination", 
+            flow: "pagination",
+            manager: "default",
             width: "100%",
             height: "100%",
             allowScriptedContent: true
         });
 
         await this.renderTask?.display();
-        this.renderTask.on("relocated", (location:any) => {
-            const currentCFI = location.start.cfi;
-            log.debug(`Current position: ${currentCFI}`);
-            // const currentPage = this.book?.locations.locationFromCfi(currentCFI);
-        })
     }
 
     async nextPage(): Promise<void> {
+        if(!this.renderTask) {
+            throw new Error("Ulpoad file first");
+        }
         await this.renderTask?.next();
-        await this.renderTask?.display();
     }
 
     async prevPage(): Promise<void> {
+        if(!this.renderTask) {
+            throw new Error("Ulpoad file first");
+        }
         await this.renderTask?.prev();
-        await this.renderTask?.display();
     }
 
     destroy(): void {

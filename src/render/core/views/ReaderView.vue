@@ -8,21 +8,18 @@ import log from "electron-log/renderer"
 import { computed, onMounted, ref, watch } from "vue";
 import type { Component } from "vue";
 
-import PDFRaderView from "../views/PDFReaderView.vue";
-
-import { PluginsManagerRender } from "../models/plugins/PluginsManagerRender";
-import { EPUBReader } from "../models/plugins/EPUBReader";
-import { PDFReader } from "../models/plugins/PDFReader";
+import PDFReaderView from "../views/PDFReaderView.vue";
 import EPUBReaderView from "./EPUBReaderView.vue";
 import CustomView from "./CustomView.vue";
 
 
-const filePath = ref<string | null>("");
+const props = defineProps<{filePath: string}>();
+const filePath = ref("");
 
-
-// remove after create pdf and epub work onlu for develop
-PluginsManagerRender.getInstance().registryReader(new PDFReader());
-PluginsManagerRender.getInstance().registryReader(new EPUBReader());
+const componentMap = new Map<string, Component>([
+    ["pdf", PDFReaderView],
+    ["epub", EPUBReaderView]
+]);
 
 onMounted(async () => {
     filePath.value = props.filePath;
@@ -41,11 +38,9 @@ const selectedComponent = computed((): Component | undefined => {
         return;
     }
     const fileType = getFileType(filePath.value);
-    return componentMap.has(fileType) ? componentMap.get(fileType) : CustomView;
+    log.debug(`filePath: ${filePath.value} and ext: ${fileType}`);
+    return componentMap.has(fileType.toLowerCase()) ? componentMap.get(fileType) : CustomView;
 });
-
-
-
 </script>
 
 

@@ -54,7 +54,7 @@
         v-if="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath !== 'none'"
       >
         <div>
-          <PDFReaderView :file="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath" />
+          <ReaderView :filePath="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath" />
         </div>
         
       </div>
@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import useTabs from './tabs';
-import PDFReaderView from "../../core/views/PDFReaderView.vue";
+import ReaderView from '@/render/core/views/ReaderView.vue';
 const {
     leftDrawerOpen,
     tabs,
