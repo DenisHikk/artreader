@@ -1,7 +1,0 @@
-{
-    "type": "module",
-    "name": "testplugin",
-    "version": "1.0.0",
-    "main": "main.js",
-    "description": "Test description"
-}

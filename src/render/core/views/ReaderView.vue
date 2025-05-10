@@ -19,6 +19,7 @@ import CustomView from "./CustomView.vue";
 
 const filePath = ref<string | null>("");
 
+
 // remove after create pdf and epub work onlu for develop
 PluginsManagerRender.getInstance().registryReader(new PDFReader());
 PluginsManagerRender.getInstance().registryReader(new EPUBReader());
