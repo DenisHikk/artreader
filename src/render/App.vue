@@ -1,45 +1,56 @@
 <template>
-    <q-layout view="hHh lpR fFf">
+  <q-layout view="lHh lpR fFf">
+    <q-header class="bg-primary text-white">
+      <!--  Upper toolbar-->
+      <q-toolbar>
+        <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
+        <!-- Title -->
+        <q-toolbar-title>
+          <q-avatar>
+            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
+          </q-avatar>
+          ArtReader
+        </q-toolbar-title>
+      </q-toolbar>
+    </q-header>
+    
+    <!-- Left Drawer -->
+    <q-drawer v-model="leftDrawerOpen" side="left" bordered>
+      <div>
+        Pages
+      </div>
+    </q-drawer>
 
-        <q-header elevated class="bg-primary text-white">
-            <q-toolbar>
-                <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
+    <!-- Page -->
+    <q-page-container>
+      
+      <!-- Tabs -->
+      <Tabs/>
 
-                <q-toolbar-title>
-                    <q-avatar>
-                        <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
-                    </q-avatar>
-                    ArtReader
-                </q-toolbar-title>
-            </q-toolbar>
-        </q-header>
 
-        <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
-            
-        </q-drawer>
+    </q-page-container>
+    
+    <!-- Footer -->
+    <q-footer elevated class="bg-grey-8 text-white">
+      <q-toolbar>
+        <q-toolbar-title>
+          <div>
+            Pu-pu-puuuu... 
+            I hope there will be something here, for example, tools.
+          </div>
+        </q-toolbar-title>
+      </q-toolbar>
+    </q-footer>
+  </q-layout>
+</template> 
 
-        <q-page-container>
-            <q-btn @click="openFile" label="Open File"></q-btn>
-        </q-page-container>
-
-    </q-layout>
-</template>
-
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import Tabs from './vue_components/tabs/Tabs.vue'
 
 const leftDrawerOpen = ref(false);
 const toggleLeftDrawer = () => {
     leftDrawerOpen.value = !leftDrawerOpen.value
 }
 
-
-const openFile = async () => {
-    const filePath = await window.api.dialogOpenFile();
-    window.api.openReaderWindow(filePath);
-}
-
 </script>
-
-<style lang="scss">
-</style>
