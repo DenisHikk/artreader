@@ -3,7 +3,7 @@ import { IPlugin } from "@/common/interface/IPlugin"
 declare global {
     interface Window {
         api: {
-            dialogOpenFile: (file: string) => Promise<string>,
+            dialogOpenFile: () => Promise<string>,
             openFile: (path: string)=>Promise<ArrayBuffer>,
             workerDir: () => Promise<string>
             openReaderWindow(file: string):void
