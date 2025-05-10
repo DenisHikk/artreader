@@ -59,9 +59,6 @@ const pdfReader = new PDFReader();
 
 const renderMode = ref(RenderMode.ALL_PAGES);
 
-const leftDrawerOpen = ref(false)
-const rightDrawerOpen = ref(false)
-
 watch(renderMode, async (mode) => {
     await nextTick();
     await renderPDF();

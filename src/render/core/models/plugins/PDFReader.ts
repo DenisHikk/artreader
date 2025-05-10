@@ -68,6 +68,18 @@ export class PDFReader implements IReader {
         this.pdfDoc = null;
     }
 
+    nextPage(): void {
+        throw new Error("Method not implemented.");
+    }
+
+    prevPage(): void {
+        throw new Error("Method not implemented.");
+    }
+    
+    getCurrentPage(): number {
+        throw new Error("Method not implemented.");
+    }
+
     getTotalPages(): number {
         if(!this.pdfDoc) {
             throw new Error("Upload file first!")

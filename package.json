@@ -59,6 +59,7 @@
     "webpack-merge": "^6.0.1"
   },
   "dependencies": {
+    "epubjs": "^0.3.93",
     "pdfjs-dist": "^5.1.91",
     "quasar": "^2.18.1"
   }
