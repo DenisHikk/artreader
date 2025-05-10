@@ -25,7 +25,7 @@
     <q-page-container>
       
       <!-- Tabs -->
-      <Tabs/>
+      <TabsComponent />
 
 
     </q-page-container>
@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import Tabs from './vue_components/tabs/Tabs.vue'
+import TabsComponent from "./vue_components/tabs/TabsComponent.vue"
 
 const leftDrawerOpen = ref(false);
 const toggleLeftDrawer = () => {

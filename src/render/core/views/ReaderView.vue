@@ -1,30 +1,46 @@
 <template>
-    <PDFRaderView :file="filePath" v-if="filePath" />
+    <component :is="selectedComponent" :file="filePath" v-if="selectedComponent && filePath" />
 </template>
 
 
 <script setup lang="ts">
 import log from "electron-log/renderer"
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import type { Component } from "vue";
 
-import PDFRaderView from "../views/PDFReaderView.vue";
-
-import { PluginsManagerRender } from "../models/plugins/PluginsManagerRender";
-import { EPUBReader } from "../models/plugins/EPUBReader";
-import { PDFReader } from "../models/plugins/PDFReader";
+import PDFReaderView from "../views/PDFReaderView.vue";
+import EPUBReaderView from "./EPUBReaderView.vue";
+import CustomView from "./CustomView.vue";
 
 
-const filePath = ref<string | null>("");
 const props = defineProps<{filePath: string}>();
+const filePath = ref("");
 
-// remove after create pdf and epub work onlu for develop
-PluginsManagerRender.getInstance().registryReader(new PDFReader());
-PluginsManagerRender.getInstance().registryReader(new EPUBReader());
+const componentMap = new Map<string, Component>([
+    ["pdf", PDFReaderView],
+    ["epub", EPUBReaderView]
+]);
 
 onMounted(async () => {
     filePath.value = props.filePath;
 });
 
+const getFileType = (filePath: string) => {
+    const ext = filePath.split(".").pop();
+    log.debug(`Ext ${ext}`)
+    if(ext === "pdf") return "pdf";
+    if(ext === "epub") return "epub";
+    return "custom";
+}
+
+const selectedComponent = computed((): Component | undefined => {
+    if(!filePath.value) {
+        return;
+    }
+    const fileType = getFileType(filePath.value);
+    log.debug(`filePath: ${filePath.value} and ext: ${fileType}`);
+    return componentMap.has(fileType.toLowerCase()) ? componentMap.get(fileType) : CustomView;
+});
 </script>
 
 

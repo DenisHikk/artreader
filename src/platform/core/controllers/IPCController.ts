@@ -26,7 +26,7 @@ export class IPCController {
                 const result = await dialog.showOpenDialog({
                     properties:["openFile"],
                     filters: [
-                        {name: "Book file", extensions: ["pdf"]}
+                        {name: "Book file", extensions: ["pdf", "epub"]}
                     ]
                 });
                 return result.filePaths[0];

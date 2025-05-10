@@ -35,7 +35,7 @@ interface Tab {
     filepath: string;
 }
 
-export default function Tabs() {
+export default function useTabs() {
     /// vars
     const uidGenerator:UidGenerator = new UidGenerator();
     const leftDrawerOpen = ref(false);
