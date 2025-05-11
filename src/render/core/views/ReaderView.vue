@@ -1,5 +1,7 @@
 <template>
-    <component :is="selectedComponent" :file="filePath" v-if="selectedComponent && filePath" />
+    <div class="reader" v-if="selectedComponent && filePath">
+        <component :is="selectedComponent" :file="filePath"  />
+    </div>
 </template>
 
 
@@ -44,9 +46,12 @@ const selectedComponent = computed((): Component | undefined => {
 </script>
 
 
-<style lang="scss">
-body {
+<style scoped lang="scss">
+.reader {
     background-color: #333333;
+    width: 100%;
+    height: 100%;
+    position: relative;
 }
 
 </style>
