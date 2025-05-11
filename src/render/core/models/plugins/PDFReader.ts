@@ -1,18 +1,17 @@
 import { IReader } from "@/common/interface/IReader";
 
 import log from "electron-log/renderer"
-import { GlobalWorkerOptions, PDFDocumentProxy, PDFPageProxy, PDFWorker, PageViewport, TextLayer, Util, getDocument } from "pdfjs-dist";
+import { GlobalWorkerOptions, PDFDocumentProxy, PDFPageProxy, PDFWorker, PageViewport, RenderTask, TextLayer, Util, getDocument } from "pdfjs-dist";
 import { TextContent } from "pdfjs-dist/types/src/display/api";
-import { RenderMode } from "./RenderMode";
-
 
 export class PDFReader implements IReader {
     private worker: PDFWorker | null = null;
     private pdfDoc: PDFDocumentProxy | null = null;
+    private renderTasks: Map<number, RenderTask> = new Map();
     private settings = {
         width: 595,
         height: 842,
-        scale: 1.3
+        scale: 1.0
     }
 
     canHandle(file: string | File): boolean {
@@ -49,35 +48,42 @@ export class PDFReader implements IReader {
         const viewport = this.getViewport(page);
         const {canvas, ctx, textLayer} = this.prepareCanvasAndTextLayer(container, viewport);
 
-        const renderPagePromise = this.renderPageToCanvas(page, ctx, viewport)
+        const prevTask = this.renderTasks.get(numPage);
+        if(prevTask) {
+            try {
+                prevTask.cancel();
+            } catch(err) {
+                log.error("Something wrong with cancel prevTask");
+            } finally {
+                this.renderTasks.delete(numPage);
+            }
+        }
 
+        const renderTask = page?.render({canvasContext: ctx, viewport});
+        this.renderTasks.set(numPage, renderTask);
+        await this.renderTasks.get(numPage)?.promise;
+        this.renderTasks.delete(numPage);
         const textContent = await page?.getTextContent();
 
         if(textContent) {
             this.renderTextLayerContent(textLayer, textContent, viewport);
         }
-        await renderPagePromise;
     }
 
-    destroy(): void {
+    async destroy(): Promise<void> {
         if(!this.worker || !this.pdfDoc) {
             return;
         }
         this.worker?.destroy();
-        this.pdfDoc?.destroy();
+        await this.pdfDoc?.destroy();
         this.pdfDoc = null;
     }
 
-    nextPage(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    prevPage(): void {
-        throw new Error("Method not implemented.");
-    }
-    
-    getCurrentPage(): number {
-        throw new Error("Method not implemented.");
+    async getPage(numPage: number) {
+        if (!this.pdfDoc) {
+            throw new Error("PDF not loaded");
+        }
+        return this.pdfDoc.getPage(numPage);
     }
 
     getTotalPages(): number {
@@ -87,8 +93,7 @@ export class PDFReader implements IReader {
         return this.pdfDoc.numPages;
     }
 
-
-    private getViewport(page: PDFPageProxy): PageViewport {
+    getViewport(page: PDFPageProxy): PageViewport {
         const viewport = page?.getViewport({
             scale: this.settings.scale,
             rotation: 0,
@@ -100,6 +105,10 @@ export class PDFReader implements IReader {
             throw new Error("Can't create viewport PDF");
         }
         return viewport;
+    }
+
+    setScale(scale:number) {
+        this.settings.scale = scale;
     }
 
     private prepareCanvasAndTextLayer(container:HTMLElement, viewport: PageViewport) {
@@ -120,11 +129,6 @@ export class PDFReader implements IReader {
         container.style.height = `${canvas.height}px`
         textLayer.style.setProperty("--total-scale-factor", viewport.scale.toString());
         return {canvas, ctx, textLayer}
-    }
-
-    private async renderPageToCanvas(page: PDFPageProxy, ctx: CanvasRenderingContext2D, viewport: PageViewport) {
-        const renderTask = page?.render({canvasContext: ctx, viewport});
-        renderTask?.promise;
     }
 
     private renderTextLayerContent(textLayer: HTMLDivElement, textContent: TextContent, viewport: PageViewport) {
