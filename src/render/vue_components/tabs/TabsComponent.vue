@@ -9,25 +9,31 @@
             <q-tab 
                 v-for="(tab, index) in tabs" 
                 :key="tab.id" 
-                :name="tab.id" 
+                :name="tab.id"
+                class="text-no-wrap ellipsis" 
                 @dragstart="onDragStart($event, index)"
                 @dragover.prevent 
                 @drop="onDrop($event, index)" 
-                draggable="true">
-                    <span> {{ tab.name }} {{ tab.id }} </span>
+                draggable="true"
+                style="max-width: 150px;"
+            >
+                <div>
+                    {{ tab.name }}
                     <q-btn 
                         @click.stop="deleteTab(tab.id)" 
                         @mousedown.stop 
                         dense 
                         size="sm" 
-                        icon="delete"
+                        icon="close"
                         color="primary" 
-                    />
+                    />    
+                </div>    
             </q-tab>
             <q-btn 
                 @click="addTab()" 
-                round 
-                label="+" 
+                size="md"
+                dense
+                icon="fas fa-plus"
                 color="primary"
             />
         </q-tabs>

@@ -72,10 +72,15 @@ export default function useTabs() {
         }
     };
 
+    // get file path
     const openFile = async () => {
         filePath.value = await window.api.dialogOpenFile();
-        tabs.value[tabs.value.findIndex(tab => tab.id == activeTab.value)]
-            .filepath = filePath.value;
+        if (filePath.value) {
+           tabs.value[tabs.value.findIndex(tab => tab.id == activeTab.value)]
+                .filepath = filePath.value;
+            tabs.value[tabs.value.findIndex(tab => tab.id == activeTab.value)]
+                .name = filePath.value;
+        }
     }
 
     // drag
