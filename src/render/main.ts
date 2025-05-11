@@ -1,5 +1,6 @@
 import App from "./App.vue"
 import { createApp } from "vue"
+import { createPinia } from "pinia"
 import log from "electron-log/renderer"
 import { Quasar } from "quasar"
 
@@ -17,5 +18,7 @@ PluginsManagerRender.getInstance().registryReader(new PDFReader());
 PluginsManagerRender.getInstance().registryReader(new EPUBReader());
 
 const app = createApp(App);
+const pinia = createPinia();
 app.use(Quasar, quasarConfig)
+app.use(pinia)
 app.mount("#q-app");
