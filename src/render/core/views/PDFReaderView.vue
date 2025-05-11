@@ -28,10 +28,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, nextTick, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { PDFReader } from '../models/plugins/PDFReader'
 import { RenderMode } from '../models/plugins/RenderMode'
+import { useSettingBook } from '../store/Book'
 import log from "electron-log/renderer"
+
+const settingBook = useSettingBook();
 
 const props = defineProps<{ file: string }>()
 
@@ -102,7 +105,7 @@ async function prevPage() {
 async function renderPDF() {
     cleanupObserver()
     renderedPages.clear()
-    pdfReader.setScale(scale.value);
+    pdfReader.setScale(settingBook.scale);
     if (renderMode.value === RenderMode.ALL_PAGES) {
         setupPages()
         setupIntersectionObserver()
