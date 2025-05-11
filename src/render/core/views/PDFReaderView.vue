@@ -75,7 +75,6 @@ async function onWheelZoom(event: WheelEvent) {
     } else {
         scale.value = Math.max(scale.value - zoomStep, 0.5);
     }
-    log.debug(scale.value);
     await renderPDF();
 }
 
