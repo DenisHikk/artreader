@@ -29,6 +29,11 @@ class UidGenerator {
     }
 }
 
+function getFileName(filePath: string): string {
+    const parts = filePath.split(/[/\\]/)
+    return parts[parts.length - 1]
+}
+
 interface Tab {
     id: number;
     name: string;
@@ -79,7 +84,7 @@ export default function useTabs() {
            tabs.value[tabs.value.findIndex(tab => tab.id == activeTab.value)]
                 .filepath = filePath.value;
             tabs.value[tabs.value.findIndex(tab => tab.id == activeTab.value)]
-                .name = filePath.value;
+                .name = getFileName(filePath.value);
         }
     }
 

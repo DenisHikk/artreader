@@ -2,7 +2,7 @@
 <template>
     <div>
         <q-tabs 
-            class="bg-secondary text-white" 
+            class="bg-secondary text-white"
             v-model="activeTab" 
             :key="tabs.length" 
             align="left">
@@ -10,35 +10,39 @@
                 v-for="(tab, index) in tabs" 
                 :key="tab.id" 
                 :name="tab.id"
-                class="text-no-wrap ellipsis" 
                 @dragstart="onDragStart($event, index)"
                 @dragover.prevent 
                 @drop="onDrop($event, index)" 
                 draggable="true"
-                style="max-width: 150px;"
             >
-                <div>
-                    {{ tab.name }}
+                <div
+                    class="tab-title"
+                >
+                    <p
+                        style="max-width: 110px; overflow: hidden; margin: 0;"
+                    >
+                        {{ tab.name }}
+                    </p>
                     <q-btn 
                         @click.stop="deleteTab(tab.id)" 
                         @mousedown.stop 
                         dense 
                         size="sm" 
                         icon="close"
-                        color="primary" 
-                    />    
-                </div>    
+                        color="primary"
+                    />
+                </div>  
             </q-tab>
             <q-btn 
                 @click="addTab()" 
-                size="md"
+                size="lg"
+                flat
                 dense
-                icon="fas fa-plus"
-                color="primary"
+                icon="add_box"
             />
         </q-tabs>
     </div>
-    <div class="q-mt-md">
+    <div>
         <div v-if="tabs.length !== 0">
             <div v-if="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath == 'none'">
                 <q-btn label="Open File" @click="openFile" />
@@ -69,3 +73,13 @@
         onDrop
     } = useTabs();
 </script>
+
+<style scoped lang="scss">
+    .tab-title {
+        min-width: 90px;
+        max-width: 150px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
