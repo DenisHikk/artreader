@@ -31,7 +31,7 @@
 import { ref, nextTick, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { PDFReader } from '../models/plugins/PDFReader'
 import { RenderMode } from '../models/plugins/RenderMode'
-import { useSettingBook } from '../store/Book'
+import { useSettingBook } from '../store/BookStore'
 import log from "electron-log/renderer"
 
 const settingBook = useSettingBook();
