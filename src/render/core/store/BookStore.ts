@@ -5,7 +5,7 @@ import { ref } from "vue";
 // name for variables defineStore its "use"+UpperCamelCase name id of defineStore
 
 export const useSettingBook = defineStore("settingBook", () => {
-    const scale = ref(0);
+    const scale = ref(1);
 
     return {
         scale
