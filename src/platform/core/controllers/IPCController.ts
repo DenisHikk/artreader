@@ -73,7 +73,7 @@ export class IPCController {
                 })
                 .build();
                 this.windowManager.register(`reader${windowReader.id}`, windowReader);
-                windowReader.loadFile("reader.html");
+                windowReader.loadFile("index.html");
                 windowReader.webContents.once("did-finish-load", () => {
                     windowReader.webContents.send(IPCChannels.GET_FILE_PATH, file)
                 })

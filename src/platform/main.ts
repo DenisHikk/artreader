@@ -9,4 +9,4 @@ settingLog();
 const pluginsManager = new PluginsManager();
 await pluginsManager.init();
 
-new AppController();
+AppController.init();

@@ -6,12 +6,26 @@ import { WindowBuilder } from "../window/WindowBuilder";
 import { WindowManager } from "../window/WindowManager";
 
 export class AppController {
+    private static appControllerInstance: AppController | null = null;
     private windowManager = new WindowManager();
     private isDev: boolean = process.env.MODE === "development" ? true : false;
 
-    constructor() {
+    private constructor() {
         this.setupAppLifeCycle();
         log.initialize({ preload: true });
+    }
+
+    public static getInstance(): AppController {
+        if (AppController.appControllerInstance == null) {
+            AppController.appControllerInstance = new AppController();
+            return(AppController.appControllerInstance);
+        } else {
+            return(AppController.appControllerInstance);
+        }
+    }
+
+    public static init() {
+        AppController.getInstance();
     }
 
     private setupAppLifeCycle(): void {

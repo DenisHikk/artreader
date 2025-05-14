@@ -1,4 +1,7 @@
 import { ref } from 'vue';
+import log from "electron-log/renderer"
+import { AppController } from "@/platform/core/controllers/AppController";
+
 
 // class for generating uid's
 class UidGenerator {
@@ -47,6 +50,7 @@ export default function useTabs() {
     const tabs = ref<Tab[]>([]);
     const activeTab = ref();
     const filePath = ref();
+    let dropSuccess = false;
 
     /// functions
     // close/open left drawer
@@ -89,19 +93,49 @@ export default function useTabs() {
     }
 
     // drag
-    const onDragStart = (event:any, index:number) => {
-        event.dataTransfer.setData('text/plain', index);
+    const onDragStart = (event:DragEvent, index:number) => {
+        if (event.dataTransfer) {
+           event.dataTransfer.setData('text/plain', index.toString()); 
+        } else {
+            throw new Error("Some kind of problem with drag and drop. " + 
+                            "The dataTransfer not found when dragging started");
+                            
+        }
+        
     };
   
     // drop
-    const onDrop = (event:any, index:number) => {
-        const draggedIndex = event.dataTransfer.getData('text/plain');
-        if (draggedIndex !== index.toString()) {
-          const draggedTab = tabs.value[draggedIndex];
-          tabs.value.splice(draggedIndex, 1);
-          tabs.value.splice(index, 0, draggedTab);
-        }
+    const onDrop = (event:DragEvent, index:number) => {
+        if (event.dataTransfer) {
+            let draggedIndex:string;
+            draggedIndex = event.dataTransfer.getData('text/plain');
+            if (draggedIndex !== index.toString()) {
+                dropSuccess = true;
+                const draggedTab = tabs.value[parseInt(draggedIndex)];
+                tabs.value.splice(parseInt(draggedIndex), 1);
+                tabs.value.splice(index, 0, draggedTab);
+            }
+        } else {
+            throw new Error("Some kind of problem with drag and drop. " + 
+                            "DataTransfer object not found when drag ends");
+        } 
     };
+
+    // Drag end
+    const onDragEnd = (event:DragEvent, index:number) => {
+        if (!dropSuccess)
+        {
+            log.debug("You've dropped an OUTSIDE of zone tab!");
+            const filepath = tabs.value[index].filepath
+            if (!filepath || filepath !== "none"){
+                window.api.openReaderWindow(tabs.value[index].filepath);  
+            }
+            
+        } else {
+            log.debug("You've dropped a tab IN the zone!");
+        }
+        dropSuccess = false;
+    }
 
     /// init
     addTab();
@@ -116,6 +150,7 @@ export default function useTabs() {
         deleteTab,
         openFile,
         onDragStart,
-        onDrop
+        onDrop,
+        onDragEnd
     }
 }

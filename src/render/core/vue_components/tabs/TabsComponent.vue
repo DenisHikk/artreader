@@ -12,7 +12,8 @@
                 :name="tab.id"
                 @dragstart="onDragStart($event, index)"
                 @dragover.prevent 
-                @drop="onDrop($event, index)" 
+                @drop="onDrop($event, index)"
+                @dragend="onDragEnd($event, index)"
                 draggable="true"
             >
                 <div
@@ -70,7 +71,8 @@
         deleteTab,
         openFile,
         onDragStart,
-        onDrop
+        onDrop,
+        onDragEnd
     } = useTabs();
 </script>
 
