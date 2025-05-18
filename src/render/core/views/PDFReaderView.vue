@@ -5,9 +5,10 @@
                 flat round />
         </q-toolbar-title>
     </q-toolbar>
-    <div class="container-reader">
+    <div ref="containerReader" class="container-reader">
         <div ref="containerAllPages" v-if="renderMode === RenderMode.ALL_PAGES">
             <div v-for="page in totalPages" :key="page" :id="'page-' + page" class="container-pdf">
+                <div class="plug"></div>
                 <canvas></canvas>
                 <div class="text_layer"></div>
             </div>
@@ -32,6 +33,7 @@ import { ref, nextTick, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { PDFReader } from '../models/plugins/PDFReader'
 import { RenderMode } from '../models/plugins/RenderMode'
 import { useSettingBook } from '../store/BookStore'
+import { throttle } from '../utils/timingUtils'
 import log from "electron-log/renderer"
 
 const settingBook = useSettingBook();
@@ -43,12 +45,15 @@ const totalPages = ref(0)
 const currentPage = ref(1)
 const scale = ref(1.0);
 
+const containerReader = ref<HTMLElement | null>(null);
 const containerAllPages = ref<HTMLDivElement | null>(null)
 const containerSinglePage = ref<HTMLDivElement | null>(null)
 
 const pdfReader = new PDFReader()
 const renderedPages = new Set<number>()
 let observer: IntersectionObserver | null = null
+
+const throttledOnIntersect = throttle(handleIntersect, 100);
 
 onMounted(async () => {
     await pdfReader.load(props.file)
@@ -66,19 +71,40 @@ onBeforeUnmount(async () => {
 })
 
 watch(renderMode, async () => {
+    pdfReader.cancelAllRender();
     await nextTick()
     await renderPDF()
 })
 
 async function onWheelZoom(event: WheelEvent) {
     if (!event.ctrlKey) return;
+    event.preventDefault();
     const zoomStep = 0.1;
-    if (event.deltaY < 0) {
-        scale.value = Math.min(scale.value + zoomStep, 1.5);
-    } else {
-        scale.value = Math.max(scale.value - zoomStep, 0.5);
+
+    const container = containerReader.value;
+    if(!container) return;
+    const scrollBeforeZoom = {
+        top: container.scrollTop,
+        left: container.scrollLeft,
+        clientWidth: container?.clientWidth,
+        clientHeight: container?.clientHeight
     }
-    await renderPDF();
+
+    let newScale = scale.value;
+    if (event.deltaY < 0) {
+        newScale = Math.min(scale.value + zoomStep, 1.5);
+    } else {
+        newScale = Math.max(scale.value - zoomStep, 0.5);
+    }
+    if(newScale !== scale.value) {
+        pdfReader.cancelAllRender();
+        clearAllCanvases();
+        const scaleRatio = newScale / scale.value;
+        scale.value = newScale;
+        await renderPDF();
+        container.scrollTop = scrollBeforeZoom.top * scaleRatio;
+        container.scrollLeft = scrollBeforeZoom.left * scaleRatio;
+    }
 }
 
 function toggleRenderMode() {
@@ -105,10 +131,10 @@ async function prevPage() {
 async function renderPDF() {
     cleanupObserver()
     renderedPages.clear()
-    pdfReader.setScale(settingBook.scale);
+    pdfReader.setScale(scale.value);
     if (renderMode.value === RenderMode.ALL_PAGES) {
-        setupPages()
-        setupIntersectionObserver()
+        setupPages();
+        setupIntersectionObserver();
     } else {
         const container = containerSinglePage.value
         if (container) {
@@ -137,26 +163,44 @@ function setupIntersectionObserver() {
     const container = containerAllPages.value
     if (!container) return
 
-    observer = new IntersectionObserver(onIntersect, {
+    observer = new IntersectionObserver(handleIntersect, {
         root: null,
-        threshold: 0.2
+        threshold: 0.1
     })
 
     const pages = container.querySelectorAll('.container-pdf')
     pages.forEach(page => observer?.observe(page))
 }
 
-function onIntersect(entries: IntersectionObserverEntry[]) {
+function handleIntersect(entries: IntersectionObserverEntry[]) {
     entries.forEach(async entry => {
         if (entry.isIntersecting) {
-            const target = entry.target as HTMLElement
-            const id = target.id
-            const pageNum = Number(id.split('-').pop())
+            const target = entry.target as HTMLElement;
+            const id = target.id;
+            const pageNum = Number(id.split('-').pop());
             if (!isNaN(pageNum)) {
-                await renderVisiblePage(target, pageNum)
+                await renderVisiblePage(target, pageNum);
+            }
+        } else {
+            const target = entry.target as HTMLElement;
+            const id = target.id;
+            const pageNum = Number(id.split("-").pop());
+            if(!isNaN(pageNum)) {
+                clearPage(target, pageNum);
             }
         }
     })
+}
+
+function clearPage(target: HTMLElement, pageNum: number) {
+    const canvas = target.querySelector("canvas");
+    const textLayer = target.querySelector(".text_layer");
+    renderedPages.clear();
+    canvas?.getContext("2d")?.clearRect(0,0,canvas.width, canvas.height);
+    if(!textLayer) {
+        return;
+    }
+    textLayer.innerHTML = "";;
 }
 
 async function renderVisiblePage(elem: HTMLElement, pageNum: number) {
@@ -171,10 +215,33 @@ function cleanupObserver() {
         observer = null
     }
 }
+
+function clearAllCanvases() {
+    const container = containerAllPages.value;
+    const canvases = container?.querySelectorAll("canvas");
+    const textLayers = container?.querySelectorAll(".text_layer");
+    renderedPages.clear();
+    canvases?.forEach(canvas => {
+        const ctx = canvas.getContext("2d");
+        if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height);
+    })
+    textLayers?.forEach(textLayer => {
+        textLayer.innerHTML = "";
+    })
+}
+
 </script>
 
 
 <style scoped lang="scss">
+.plug {
+    background-color: #ffffff;
+    position: relative;
+    margin: 10px;
+    width: 595px;
+    height: 842px;
+}
+
 .container-pdf {
     background-color: #ffffff;
     position: relative;
@@ -189,7 +256,8 @@ canvas {
 }
 
 .container-reader,
-.reader {
+.reader,
+.plug {
     width: 100%;
     height: 100%;
 }

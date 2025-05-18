@@ -111,6 +111,16 @@ export class PDFReader implements IReader {
         this.settings.scale = scale;
     }
 
+    cancelAllRender() {
+        this.renderTasks.forEach(renderTask => {
+            try {
+                renderTask.cancel();
+            } catch(err) {
+                log.error(err);
+            }
+        })
+    }
+
     private prepareCanvasAndTextLayer(container:HTMLElement, viewport: PageViewport) {
         const textLayer = container.getElementsByTagName("div")[0];
         const canvas = container.getElementsByTagName("canvas")[0];

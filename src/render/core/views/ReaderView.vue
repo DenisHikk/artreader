@@ -24,7 +24,7 @@ const componentMap = new Map<string, Component>([
 ]);
 
 onMounted(async () => {
-    filePath.value = props.filePath;
+    filePath.value = props.filePath ? props.filePath : await window.api.getFilePath(); 
 });
 
 const getFileType = (filePath: string) => {
