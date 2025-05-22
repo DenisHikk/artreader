@@ -62,11 +62,9 @@
     import useTabs from './tabs';
     import ReaderView from '@/render/core/views/ReaderView.vue';
     const {
-        leftDrawerOpen,
         tabs,
         activeTab,
 
-        toggleLeftDrawer,
         addTab,
         deleteTab,
         openFile,

@@ -1,41 +1,5 @@
-import { ref } from 'vue';
-import log from "electron-log/renderer"
-import { AppController } from "@/platform/core/controllers/AppController";
-
-
-// class for generating uid's
-class UidGenerator {
-    generatedIds:Set<number> = new Set([1]);
-
-    // generate new uid
-    getUid(): number {
-        if (this.generatedIds.size > 100000)
-        {
-            throw new Error("You're trying to open more than 100.000 tabs. " +
-              " Are you sick? I can't give you another id. The pool is full.");
-        }
-        let newId:number;
-        do {
-            newId = Math.floor(Math.random() * 100000) + 1;
-        } while (this.generatedIds.has(newId));
-        this.generatedIds.add(newId);
-        return newId;
-    }
-
-    // remove id
-    removeId(id:number) {
-        if (!this.generatedIds.has(id)) {
-            throw new Error("The tab ID you are trying to remove from the " +
-                "pool does not exist in this pool");
-        }
-        this.generatedIds.delete(id);
-    }
-}
-
-function getFileName(filePath: string): string {
-    const parts = filePath.split(/[/\\]/)
-    return parts[parts.length - 1]
-}
+import { ref, onMounted } from 'vue';
+import { UidGenerator } from './SimpleUidGenerator';
 
 interface Tab {
     id: number;
@@ -44,28 +8,27 @@ interface Tab {
 }
 
 export default function useTabs() {
-    /// vars
+    /// Vars
     const uidGenerator:UidGenerator = new UidGenerator();
-    const leftDrawerOpen = ref(false);
     const tabs = ref<Tab[]>([]);
     const activeTab = ref();
     const filePath = ref();
     let dropSuccess = false;
 
-    /// functions
-    // close/open left drawer
-    const toggleLeftDrawer = () => {
-        leftDrawerOpen.value = !leftDrawerOpen.value;
-    };
+    /// Functions
+    const getFileName = (filePath: string) => {
+        const parts = filePath.split(/[/\\]/);
+        return parts[parts.length - 1];
+    }
 
-    // new tab
+    // New tab
     const addTab = () => {
         const newId = uidGenerator.getUid();
         tabs.value.push({ id: newId, name: "New Tab", filepath: "none" });
         activeTab.value = newId;
     };
 
-    // delete tab
+    // Delete tab
     const deleteTab = (idToRemove: number) => {
         if (tabs.value.length !== 1) {
 
@@ -78,10 +41,13 @@ export default function useTabs() {
             }
 
             uidGenerator.removeId(idToRemove);
+        } else {
+            tabs.value[0].name = "New Tab";
+            tabs.value[0].filepath = "none";
         }
     };
 
-    // get file path
+    // Get file path
     const openFile = async () => {
         filePath.value = await window.api.dialogOpenFile();
         if (filePath.value) {
@@ -92,7 +58,7 @@ export default function useTabs() {
         }
     }
 
-    // drag
+    // Drag
     const onDragStart = (event:DragEvent, index:number) => {
         if (event.dataTransfer) {
            event.dataTransfer.setData('text/plain', index.toString()); 
@@ -104,7 +70,7 @@ export default function useTabs() {
         
     };
   
-    // drop
+    // Drop
     const onDrop = (event:DragEvent, index:number) => {
         if (event.dataTransfer) {
             let draggedIndex:string;
@@ -125,27 +91,29 @@ export default function useTabs() {
     const onDragEnd = (event:DragEvent, index:number) => {
         if (!dropSuccess)
         {
-            log.debug("You've dropped an OUTSIDE of zone tab!");
             const filepath = tabs.value[index].filepath
             if (!filepath || filepath !== "none"){
-                window.api.openReaderWindow(tabs.value[index].filepath);  
+                window.api.openReaderWindow(tabs.value[index].filepath);
+                deleteTab(tabs.value[index].id);
             }
-            
-        } else {
-            log.debug("You've dropped a tab IN the zone!");
         }
         dropSuccess = false;
-    }
+    };
 
+    // Open reader if the path to the document was obtained during the mount
+    onMounted( async () => {
+        const filePath = await window.api.getFilePath();
+        tabs.value[0].name = getFileName(filePath);
+        tabs.value[0].filepath = filePath;
+    });
+    
     /// init
     addTab();
 
     return {
-        leftDrawerOpen,
         tabs,
         activeTab,
   
-        toggleLeftDrawer,
         addTab,
         deleteTab,
         openFile,
