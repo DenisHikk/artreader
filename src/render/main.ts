@@ -12,13 +12,13 @@ import { PluginsManagerRender } from "./core/models/plugins/PluginsManagerRender
 import { PDFReader } from "./core/models/plugins/PDFReader"
 import { EPUBReader } from "./core/models/plugins/EPUBReader"
 
-log.variables.label = "render";
+log.variables.label = "render"
 
 PluginsManagerRender.getInstance().registryReader(new PDFReader());
 PluginsManagerRender.getInstance().registryReader(new EPUBReader());
 
 const app = createApp(App);
 const pinia = createPinia();
-app.use(Quasar, quasarConfig)
-app.use(pinia)
+app.use(Quasar, quasarConfig);
+app.use(pinia);
 app.mount("#q-app");

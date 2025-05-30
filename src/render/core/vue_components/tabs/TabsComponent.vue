@@ -11,7 +11,7 @@
                 :key="tab.id" 
                 :name="tab.id"
                 @dragstart="onDragStart($event, index)"
-                @dragover.prevent 
+                @dragover.prevent
                 @drop="onDrop($event, index)"
                 @dragend="onDragEnd($event, index)"
                 draggable="true"

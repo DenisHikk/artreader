@@ -1,5 +1,7 @@
 import { ref, onMounted } from 'vue';
 import { UidGenerator } from './SimpleUidGenerator';
+import log from "electron-log/renderer"
+
 
 interface Tab {
     id: number;
@@ -61,17 +63,16 @@ export default function useTabs() {
     // Drag
     const onDragStart = (event:DragEvent, index:number) => {
         if (event.dataTransfer) {
-           event.dataTransfer.setData('text/plain', index.toString()); 
+           event.dataTransfer.setData('tab', index.toString()); 
         } else {
             throw new Error("Some kind of problem with drag and drop. " + 
                             "The dataTransfer not found when dragging started");
-                            
         }
-        
     };
   
     // Drop
     const onDrop = (event:DragEvent, index:number) => {
+        log.debug(`onDrop: ${event.dataTransfer?.getData('text/plain')}`);
         if (event.dataTransfer) {
             let draggedIndex:string;
             draggedIndex = event.dataTransfer.getData('text/plain');
