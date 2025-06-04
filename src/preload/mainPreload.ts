@@ -11,5 +11,6 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.once(IPCChannels.GET_FILE_PATH, (_, filePath: string) => {
             resolve(filePath);
         })
-    })
+    }),
+    closeWindow: () => ipcRenderer.invoke(IPCChannels.CLOSE_WINDOW)
 })

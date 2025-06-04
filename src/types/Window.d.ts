@@ -5,9 +5,10 @@ declare global {
         api: {
             dialogOpenFile: () => Promise<string>,
             openFile: (path: string)=>Promise<ArrayBuffer>,
-            workerDir: () => Promise<string>
-            openReaderWindow(file: string):void
-            getFilePath(): Promise<string>
+            workerDir: () => Promise<string>,
+            openReaderWindow(file: string):void,
+            getFilePath(): Promise<string>,
+            closeWindow(): void,
         }
         plugins: {
             getPlugins: () => Promise<IPlugin[]>

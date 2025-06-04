@@ -1,57 +1,68 @@
 <!-- Tabs -->
 <template>
-    <div>
-        <q-tabs 
-            class="bg-secondary text-white"
-            v-model="activeTab" 
-            :key="tabs.length" 
-            align="left">
-            <q-tab 
-                v-for="(tab, index) in tabs" 
-                :key="tab.id" 
-                :name="tab.id"
-                @dragstart="onDragStart($event, index)"
-                @dragover.prevent
-                @drop="onDrop($event, index)"
-                @dragend="onDragEnd($event, index)"
-                draggable="true"
+    <q-tabs 
+        class="bg-secondary text-white"
+        v-model="activeTab"
+        :key="tabs.length"
+        align="left"
+    >
+        <q-tab 
+            v-for="(tab, index) in tabs" 
+            :key="tab.id"
+            :name="tab.id"
+            @dragstart="onDragStart($event, tab)"
+            @dragover.prevent
+            @drop="onDrop($event, tab)"
+            @dragend="onDragEnd(tab)"
+            draggable="true"
+        >
+            <div
+                class="tab-title"
             >
-                <div
-                    class="tab-title"
+                <p
+                    style="max-width: 110px; overflow: hidden; margin: 0;"
                 >
-                    <p
-                        style="max-width: 110px; overflow: hidden; margin: 0;"
-                    >
-                        {{ tab.name }}
-                    </p>
-                    <q-btn 
-                        @click.stop="deleteTab(tab.id)" 
-                        @mousedown.stop 
-                        dense 
-                        size="sm" 
-                        icon="close"
-                        color="primary"
-                    />
-                </div>  
-            </q-tab>
-            <q-btn 
-                @click="addTab()" 
-                size="lg"
-                flat
-                dense
-                icon="add_box"
-            />
-        </q-tabs>
-    </div>
+                    {{ tab.name }}
+                </p>
+                <q-btn
+                    @click.stop="deleteTab(tab.id)"
+                    @mousedown.stop
+                    dense
+                    size="sm"
+                    icon="close"
+                    color="primary"
+                />
+            </div>  
+        </q-tab>
+        <q-btn 
+            @click="addTab()"
+            size="lg"
+            flat
+            dense
+            icon="add_box"
+        />
+        <q-btn 
+            @click="windowClose()"
+            size="lg"
+            flat
+            dense
+            icon="add_box"
+        />
+    </q-tabs>
+
+    <q-separator />
+
     <div>
         <div v-if="tabs.length !== 0">
-            <div v-if="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath == 'none'">
+            <div v-if="tabs[tabs.findIndex(tab => tab.id == activeTab)]
+                                                        .filepath == 'none'">
                 <q-btn label="Open File" @click="openFile" />
             </div>
             <div v-else>
-                <ReaderView 
+                <ReaderView
                     :key="activeTab"
-                    :filePath="tabs[tabs.findIndex(tab => tab.id == activeTab)].filepath" 
+                    :filePath="tabs[tabs.findIndex(tab => tab.id == activeTab)]
+                                                                    .filepath"
                 />
             </div>
         </div>
@@ -70,7 +81,8 @@
         openFile,
         onDragStart,
         onDrop,
-        onDragEnd
+        onDragEnd,
+        windowClose
     } = useTabs();
 </script>
 

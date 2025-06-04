@@ -10,5 +10,4 @@
 
 <script setup lang="ts">
     import TabsComponent from '@/render/core/vue_components/tabs/TabsComponent.vue'
-    //import TabsComponent from '@/render/core/vue_components/tabs_new_test/NewTabsComponent.vue'
 </script>

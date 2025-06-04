@@ -1,13 +1,13 @@
-// class for generating uid's
-export class UidGenerator {
-    generatedIds:Set<number> = new Set([1]);
+// Class for generating uid's for tabs
+export class TabUidGenerator {
+    generatedIds:Set<number> = new Set();
 
     // Generate new uid
     getUid(): number {
         if (this.generatedIds.size > 100000)
         {
             throw new Error("You're trying to open more than 100.000 tabs. " +
-              " Are you sick? I can't give you another id. The pool is full.");
+              "Are you sick? I can't give you another id. The pool is full.");
         }
         let newId:number;
         do {

@@ -17,6 +17,7 @@ export class IPCController {
         this.setupOpenFile();
         this.getSrcWorker();
         this.openReaderWindow();
+        this.closeWindow();
     }
 
     private setupFileDialog() {
@@ -77,6 +78,17 @@ export class IPCController {
                 windowReader.webContents.once("did-finish-load", () => {
                     windowReader.webContents.send(IPCChannels.GET_FILE_PATH, file)
                 })
+            }
+        )
+    }
+
+    private closeWindow() {
+        ipcMain.handle(
+            IPCChannels.CLOSE_WINDOW,
+            async() =>
+            {
+                log.debug("CLOSE")
+                window.close();
             }
         )
     }

@@ -1,21 +1,17 @@
 import { ref, onMounted } from 'vue';
-import { UidGenerator } from './SimpleUidGenerator';
+import { TabUidGenerator } from './tabUidGenerator';
 import log from "electron-log/renderer"
-
-
-interface Tab {
-    id: number;
-    name: string;
-    filepath: string;
-}
+import { debug } from 'console';
 
 export default function useTabs() {
     /// Vars
-    const uidGenerator:UidGenerator = new UidGenerator();
-    const tabs = ref<Tab[]>([]);
+    const uidGenerator:TabUidGenerator = new TabUidGenerator();
+    const tabs = ref<{id: number, name: string, filepath: string}[]>([]);
     const activeTab = ref();
     const filePath = ref();
     let dropSuccess = false;
+    const channel = new BroadcastChannel('tab-dnd');
+    let windowType = 0;
 
     /// Functions
     const getFileName = (filePath: string) => {
@@ -24,10 +20,11 @@ export default function useTabs() {
     }
 
     // New tab
-    const addTab = () => {
+    const addTab = ():number => {
         const newId = uidGenerator.getUid();
         tabs.value.push({ id: newId, name: "New Tab", filepath: "none" });
         activeTab.value = newId;
+        return newId;
     };
 
     // Delete tab
@@ -43,6 +40,8 @@ export default function useTabs() {
             }
 
             uidGenerator.removeId(idToRemove);
+        } else if (tabs.value.length == 1 && windowType == 1) {
+            window.api.closeWindow();
         } else {
             tabs.value[0].name = "New Tab";
             tabs.value[0].filepath = "none";
@@ -58,12 +57,28 @@ export default function useTabs() {
             tabs.value[tabs.value.findIndex(tab => tab.id == activeTab.value)]
                 .name = getFileName(filePath.value);
         }
+    };
+
+    const notifyDropSuccess = (tabId: string) => {
+        channel.postMessage({ type: 'tab-drop-success', tabId });
+    };
+
+    const onDropSuccess = (callback: (tabId: string) => void) => {
+        channel.onmessage = (e) => {
+            if (e.data?.type === 'tab-drop-success') {
+                callback(e.data.tabId);
+            }
+        };
     }
 
-    // Drag
-    const onDragStart = (event:DragEvent, index:number) => {
+    // Drag start - save data
+    const onDragStart = (event:DragEvent,
+                         tab:{id: number, name: string, filepath: string}) =>
+    {
         if (event.dataTransfer) {
-           event.dataTransfer.setData('tab', index.toString()); 
+            event.dataTransfer.setData('tab', tab.id.toString() + ";" +
+                                              tab.name + ";" +
+                                              tab.filepath);
         } else {
             throw new Error("Some kind of problem with drag and drop. " + 
                             "The dataTransfer not found when dragging started");
@@ -71,45 +86,79 @@ export default function useTabs() {
     };
   
     // Drop
-    const onDrop = (event:DragEvent, index:number) => {
-        log.debug(`onDrop: ${event.dataTransfer?.getData('text/plain')}`);
+    const onDrop = (event:DragEvent,
+                    tab:{id: number, name: string, filepath: string}) =>
+    {
         if (event.dataTransfer) {
-            let draggedIndex:string;
-            draggedIndex = event.dataTransfer.getData('text/plain');
-            if (draggedIndex !== index.toString()) {
-                dropSuccess = true;
-                const draggedTab = tabs.value[parseInt(draggedIndex)];
-                tabs.value.splice(parseInt(draggedIndex), 1);
-                tabs.value.splice(index, 0, draggedTab);
+            const transferData: string[] = event.dataTransfer.getData("tab")
+                                                             .split(";");
+            const transferTab:{id: number, name: string, filepath: string} = {
+                id:parseInt(transferData[0]),
+                name: transferData[1],
+                filepath: transferData[2]
             }
-        } else {
-            throw new Error("Some kind of problem with drag and drop. " + 
-                            "DataTransfer object not found when drag ends");
-        } 
-    };
-
-    // Drag end
-    const onDragEnd = (event:DragEvent, index:number) => {
-        if (!dropSuccess)
-        {
-            const filepath = tabs.value[index].filepath
-            if (!filepath || filepath !== "none"){
-                window.api.openReaderWindow(tabs.value[index].filepath);
-                deleteTab(tabs.value[index].id);
+            
+            if (tabs.value.findIndex(e => transferTab.id === e.id) !== -1) {
+                const tabIndex = tabs.value.findIndex(e => tab.id === e.id);
+                const draggedTabIndex = tabs.value.findIndex(e => 
+                                                    transferTab.id === e.id);
+                if(tabIndex != draggedTabIndex) {
+                    tabs.value.splice(draggedTabIndex, 1);
+                    tabs.value.splice(tabIndex, 0, transferTab);
+                    dropSuccess = true;
+                }
+            } else {
+                const idNewTab = addTab();
+                const newTab = tabs.value.find(e => e.id === idNewTab);
+                if (newTab)
+                {
+                    newTab.filepath = transferTab.filepath;
+                    newTab.name = transferTab.name;
+                    notifyDropSuccess(newTab.id.toString());
+                }
+                
             }
         }
-        dropSuccess = false;
+    }
+
+    // Drag end
+    const onDragEnd = (tab:{id: number, name: string, filepath: string}) => {
+        setTimeout(() => {
+            if (!dropSuccess) {
+                if(tab.filepath) {
+                    window.api.openReaderWindow(tab.filepath);
+                    deleteTab(tab.id);    
+                } 
+            } else {
+                deleteTab(tab.id);
+            }
+            dropSuccess = false;
+        }, 50);
     };
 
+    const windowClose = () => {
+        log.debug("close");
+        window.api.closeWindow();
+    }
+
+    
+    // Init
+    addTab();
+
+    onDropSuccess((tabId) => {dropSuccess = true;});
+
     // Open reader if the path to the document was obtained during the mount
-    onMounted( async () => {
+    onMounted( async () => 
+    {
         const filePath = await window.api.getFilePath();
-        tabs.value[0].name = getFileName(filePath);
-        tabs.value[0].filepath = filePath;
+        if (filePath && filePath !== "none") {
+            tabs.value[0].name = getFileName(filePath);
+            tabs.value[0].filepath = filePath;
+        }
+        windowType = 1;
     });
     
-    /// init
-    addTab();
+    
 
     return {
         tabs,
@@ -120,6 +169,7 @@ export default function useTabs() {
         openFile,
         onDragStart,
         onDrop,
-        onDragEnd
+        onDragEnd,
+        windowClose
     }
 }
