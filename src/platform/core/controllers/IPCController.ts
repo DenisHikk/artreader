@@ -85,10 +85,11 @@ export class IPCController {
     private closeWindow() {
         ipcMain.handle(
             IPCChannels.CLOSE_WINDOW,
-            async() =>
-            {
-                log.debug("CLOSE")
-                window.close();
+            async(event) => {
+                log.debug(`Run closeWindow in main process: ${event.processId}`);
+                const currentWin = BrowserWindow.fromWebContents(event.sender);
+                if (currentWin)
+                    this.windowManager.close(`reader${currentWin.id}`);
             }
         )
     }

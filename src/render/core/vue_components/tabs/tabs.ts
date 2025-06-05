@@ -135,12 +135,6 @@ export default function useTabs() {
             dropSuccess = false;
         }, 50);
     };
-
-    const windowClose = () => {
-        log.debug("close");
-        window.api.closeWindow();
-    }
-
     
     // Init
     addTab();
@@ -169,7 +163,6 @@ export default function useTabs() {
         openFile,
         onDragStart,
         onDrop,
-        onDragEnd,
-        windowClose
+        onDragEnd
     }
 }

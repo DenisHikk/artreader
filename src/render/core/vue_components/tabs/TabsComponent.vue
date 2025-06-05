@@ -41,13 +41,6 @@
             dense
             icon="add_box"
         />
-        <q-btn 
-            @click="windowClose()"
-            size="lg"
-            flat
-            dense
-            icon="add_box"
-        />
     </q-tabs>
 
     <q-separator />
@@ -81,8 +74,7 @@
         openFile,
         onDragStart,
         onDrop,
-        onDragEnd,
-        windowClose
+        onDragEnd
     } = useTabs();
 </script>
 
