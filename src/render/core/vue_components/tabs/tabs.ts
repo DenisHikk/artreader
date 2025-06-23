@@ -1,7 +1,5 @@
 import { ref, onMounted } from 'vue';
 import { TabUidGenerator } from './tabUidGenerator';
-import log from "electron-log/renderer"
-import { debug } from 'console';
 
 export default function useTabs() {
     /// Vars
@@ -116,7 +114,6 @@ export default function useTabs() {
                     newTab.name = transferTab.name;
                     notifyDropSuccess(newTab.id.toString());
                 }
-                
             }
         }
     }
@@ -127,8 +124,8 @@ export default function useTabs() {
             if (!dropSuccess) {
                 if(tab.filepath) {
                     window.api.openReaderWindow(tab.filepath);
-                    deleteTab(tab.id);    
-                } 
+                    deleteTab(tab.id); 
+                }
             } else {
                 deleteTab(tab.id);
             }
@@ -151,8 +148,6 @@ export default function useTabs() {
         }
         windowType = 1;
     });
-    
-    
 
     return {
         tabs,

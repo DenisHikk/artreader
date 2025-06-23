@@ -1,11 +1,5 @@
 <template>
-    <q-layout view="lHh lpR fFf">
-        <!-- Page -->
-        <q-page-container>
-            <!-- Tabs -->
-            <TabsComponent />
-        </q-page-container>
-    </q-layout>
+    <TabsComponent />
 </template>
 
 <script setup lang="ts">

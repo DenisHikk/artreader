@@ -1,65 +1,68 @@
 <!-- Tabs -->
 <template>
-    <q-tabs 
-        class="bg-secondary text-white"
-        v-model="activeTab"
-        :key="tabs.length"
-        align="left"
-    >
-        <q-tab 
-            v-for="(tab, index) in tabs" 
-            :key="tab.id"
-            :name="tab.id"
-            @dragstart="onDragStart($event, tab)"
-            @dragover.prevent
-            @drop="onDrop($event, tab)"
-            @dragend="onDragEnd(tab)"
-            draggable="true"
-        >
-            <div
-                class="tab-title"
+    <q-layout view="hHh lpR fFf">
+        <q-header class="bg-primary text-white" height-hint="98">
+            <q-tabs 
+                class="bg-secondary text-white"
+                v-model="activeTab"
+                :key="tabs.length"
+                align="left"
             >
-                <p
-                    style="max-width: 110px; overflow: hidden; margin: 0;"
+                <q-tab 
+                    v-for="(tab) in tabs" 
+                    :key="tab.id"
+                    :name="tab.id"
+                    @dragstart="onDragStart($event, tab)"
+                    @dragover.prevent
+                    @drop="onDrop($event, tab)"
+                    @dragend="onDragEnd(tab)"
+                    draggable="true"
                 >
-                    {{ tab.name }}
-                </p>
-                <q-btn
-                    @click.stop="deleteTab(tab.id)"
-                    @mousedown.stop
+                    <div
+                        class="tab-title"
+                    >
+                        <p
+                            style="max-width: 110px; overflow: hidden; margin: 0;"
+                        >
+                            {{ tab.name }}
+                        </p>
+                        <q-btn
+                            @click.stop="deleteTab(tab.id)"
+                            @mousedown.stop
+                            dense
+                            size="sm"
+                            icon="close"
+                            color="primary"
+                        />
+                    </div>  
+                </q-tab>
+                <q-btn 
+                    @click="addTab()"
+                    size="lg"
+                    flat
                     dense
-                    size="sm"
-                    icon="close"
-                    color="primary"
+                    icon="add_box"
                 />
-            </div>  
-        </q-tab>
-        <q-btn 
-            @click="addTab()"
-            size="lg"
-            flat
-            dense
-            icon="add_box"
-        />
-    </q-tabs>
-
-    <q-separator />
-
-    <div>
-        <div v-if="tabs.length !== 0">
-            <div v-if="tabs[tabs.findIndex(tab => tab.id == activeTab)]
-                                                        .filepath == 'none'">
-                <q-btn label="Open File" @click="openFile" />
-            </div>
-            <div v-else>
-                <ReaderView
-                    :key="activeTab"
-                    :filePath="tabs[tabs.findIndex(tab => tab.id == activeTab)]
-                                                                    .filepath"
-                />
-            </div>
-        </div>
-    </div>
+            </q-tabs>
+        </q-header>
+        <q-page-container>
+            <router-view>
+                <div v-if="tabs.length !== 0">
+                    <div v-if="tabs[tabs.findIndex(tab => tab.id == activeTab)]
+                                                                .filepath == 'none'">
+                        <q-btn label="Open File" @click="openFile" />
+                    </div>
+                    <div v-else>
+                        <ReaderView
+                            :key="activeTab"
+                            :filePath="tabs[tabs.findIndex(tab => tab.id == activeTab)]
+                                                                            .filepath"
+                        />
+                    </div>
+                </div>
+            </router-view>
+        </q-page-container>
+    </q-layout>
 </template>
 
 <script setup lang="ts">
