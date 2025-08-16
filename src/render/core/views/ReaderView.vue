@@ -10,7 +10,7 @@ import log from "electron-log/renderer"
 import { computed, onMounted, ref, watch } from "vue";
 import type { Component } from "vue";
 
-import PDFReaderView from "../views/PDFReaderView.vue";
+import PDFReaderView from "../views/pdfview/PDFReaderView.vue";
 import EPUBReaderView from "./EPUBReaderView.vue";
 import CustomView from "./CustomView.vue";
 

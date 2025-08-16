@@ -13,9 +13,8 @@ export function throttle<T extends (...args: any[]) => void>(func: T, delay: num
         }
 
         func.apply(this, args);
-
-        isThrottled = true;
         
+        isThrottled = true;
         setTimeout(() => {
             isThrottled = false;
             if(savedArgs) {
@@ -26,4 +25,23 @@ export function throttle<T extends (...args: any[]) => void>(func: T, delay: num
         }, delay)
     }
     return wrapper;
+}
+
+export type DebouncedFunction<T extends (...args: Parameters<T>) => void> = ((this: ThisParameterType<T>) => void) & { cancel: () => void};
+export function debounce<T extends (...args: Parameters<T>) => void>(func: T, delay: number): (...args: Parameters<T>) => void {
+    let timer: ReturnType<typeof setTimeout> | null;
+    const debounce =  function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+        if(timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(() => func.apply(this, args) , delay)
+    };
+
+    (debounce as DebouncedFunction<T>).cancel = () => {
+        if(timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+    }
+    return debounce as DebouncedFunction<T>;
 }

@@ -8,6 +8,7 @@ export class PDFReader implements IReader {
     private worker: PDFWorker | null = null;
     private pdfDoc: PDFDocumentProxy | null = null;
     private renderTasks: Map<number, RenderTask> = new Map();
+    private objectURL: string | null = null;
     private settings = {
         width: 595,
         height: 842,
@@ -23,11 +24,12 @@ export class PDFReader implements IReader {
     }
 
     async load(file: string | File): Promise<void> {
+        if(this.objectURL) this.destroy();
         GlobalWorkerOptions.workerSrc = await window.api.workerDir();
         this.worker = new PDFWorker();
-        const url = file instanceof File ? URL.createObjectURL(file) : file;
+        this.objectURL = file instanceof File ? URL.createObjectURL(file) : file;
         const loadingTask = getDocument({
-            url: url,
+            url: this.objectURL,
             worker: this.worker
         })
         try {
@@ -51,7 +53,7 @@ export class PDFReader implements IReader {
         const prevTask = this.renderTasks.get(numPage);
         if(prevTask) {
             try {
-                prevTask.cancel();
+                prevTask.cancel(0);
             } catch(err) {
                 log.error("Something wrong with cancel prevTask");
             } finally {
@@ -59,10 +61,17 @@ export class PDFReader implements IReader {
             }
         }
 
-        const renderTask = page?.render({canvasContext: ctx, viewport});
+        const renderTask = page?.render({canvasContext: ctx, viewport});        
         this.renderTasks.set(numPage, renderTask);
-        await this.renderTasks.get(numPage)?.promise;
-        this.renderTasks.delete(numPage);
+
+        try {
+            await renderTask.promise;
+        } catch (err:any) {
+            if(err.name !== "RenderingCancelledException") throw err;
+        } finally {
+            this.renderTasks.delete(numPage);
+        }
+
         const textContent = await page?.getTextContent();
 
         if(textContent) {
@@ -71,15 +80,22 @@ export class PDFReader implements IReader {
     }
 
     async destroy(): Promise<void> {
-        if(!this.worker || !this.pdfDoc) {
-            return;
+        this.cancelAllRender();
+        if(this.pdfDoc) {
+            await this.pdfDoc.destroy();
+            this.pdfDoc = null;
         }
-        this.worker?.destroy();
-        await this.pdfDoc?.destroy();
-        this.pdfDoc = null;
+        if(this.worker) {
+            this.worker.destroy();
+            this.worker = null;
+        }
+        if(this.objectURL) {
+            URL.revokeObjectURL(this.objectURL);
+            this.objectURL = null;
+        }
     }
 
-    async getPage(numPage: number) {
+    async getPage(numPage: number): Promise<PDFPageProxy> {
         if (!this.pdfDoc) {
             throw new Error("PDF not loaded");
         }
@@ -118,12 +134,17 @@ export class PDFReader implements IReader {
             } catch(err) {
                 log.error(err);
             }
-        })
+        });
+        this.renderTasks.clear();
     }
 
     private prepareCanvasAndTextLayer(container:HTMLElement, viewport: PageViewport) {
-        const textLayer = container.getElementsByTagName("div")[0];
-        const canvas = container.getElementsByTagName("canvas")[0];
+        const canvas = container.querySelector("canvas") as HTMLCanvasElement;
+        const textLayer = container.querySelector(".text_layer") as HTMLDivElement;
+        
+        if(!textLayer) throw new Error("Can't find textLayer, PDF");;
+        if(!canvas) throw new Error("Can't find canvas, PDF");;
+
         const ctx = canvas.getContext("2d");
 
         if(!ctx) {
@@ -134,10 +155,13 @@ export class PDFReader implements IReader {
 
         textLayer.style.width = `${canvas.width}px`;
         textLayer.style.height = `${canvas.height}px`;
+        textLayer.classList.add("text_layer");
 
         container.style.width = `${canvas.width}px`;
-        container.style.height = `${canvas.height}px`
-        textLayer.style.setProperty("--total-scale-factor", viewport.scale.toString());
+        container.style.height = `${canvas.height}px`        
+        container.appendChild(canvas);
+        container.appendChild(textLayer);
+
         return {canvas, ctx, textLayer}
     }
 
