@@ -12,7 +12,6 @@ import { debounce, DebouncedFunction, throttle } from '../../utils/timingUtils';
 import log from "electron-log/renderer"
 
 // FIXME: Leak memory for long time in use 
-// FIXME: RESIZE when init
 const props = defineProps<{pdfReader: PDFReader}>();
 const totalPages = ref(0)
 const containerAllPages = ref<HTMLElement | null>(null);
@@ -25,15 +24,15 @@ const isScroll = ref(false);
 
 const debounceRender = debounce(async (target: HTMLElement, pageNum: number) => {
     await renderVisiblePage(target, pageNum);
-}, 50);
+}, 10);
 
 onMounted(async () => {
     log.debug(`Start ${props.pdfReader}`);
     totalPages.value = props.pdfReader.getTotalPages();
     log.debug(`total ${totalPages.value}`)
     await nextTick();
-    setupIntersectionObserver();
     await resizeContainerPdf();
+    setupIntersectionObserver();
     // window.addEventListener("scroll", throttledOnScroll);
 });
 
@@ -61,14 +60,14 @@ function handleIntersect(entries: IntersectionObserverEntry[]) {
             const target = entry.target as HTMLElement;
             const id = target.id;
             const pageNum = Number(id.split('-').pop());
-            if (!isNaN(pageNum)) {
+            if (!Number.isNaN(pageNum)) {
                 debounceRender(target, pageNum);
             }
         } else {
             const target = entry.target as HTMLElement;
             const id = target.id;
             const pageNum = Number(id.split("-").pop());
-            if(!isNaN(pageNum)) {
+            if(!Number.isNaN(pageNum)) {
                 clearPage(target, pageNum);
             }
         }
@@ -76,6 +75,7 @@ function handleIntersect(entries: IntersectionObserverEntry[]) {
 }
 
 function createPage(container: HTMLElement) {
+    if(container.querySelector("canvas")) return;
     container.innerHTML = "";
     const canvas = document.createElement("canvas");
     const textLayer = document.createElement("div");
