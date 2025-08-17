@@ -11,7 +11,8 @@ import { PDFReader } from '../../models/plugins/PDFReader';
 import { debounce, DebouncedFunction, throttle } from '../../utils/timingUtils';
 import log from "electron-log/renderer"
 
-
+// FIXME: Leak memory for long time in use 
+// FIXME: RESIZE when init
 const props = defineProps<{pdfReader: PDFReader}>();
 const totalPages = ref(0)
 const containerAllPages = ref<HTMLElement | null>(null);
@@ -24,7 +25,7 @@ const isScroll = ref(false);
 
 const debounceRender = debounce(async (target: HTMLElement, pageNum: number) => {
     await renderVisiblePage(target, pageNum);
-}, 40);
+}, 50);
 
 onMounted(async () => {
     log.debug(`Start ${props.pdfReader}`);
@@ -32,6 +33,7 @@ onMounted(async () => {
     log.debug(`total ${totalPages.value}`)
     await nextTick();
     setupIntersectionObserver();
+    await resizeContainerPdf();
     // window.addEventListener("scroll", throttledOnScroll);
 });
 
@@ -53,10 +55,6 @@ function setupIntersectionObserver() {
     pages.forEach(page => observer.value!.observe(page))
 }
 
-function handleScroll(event: Event) {
-    
-}
-
 function handleIntersect(entries: IntersectionObserverEntry[]) {
     entries.forEach(async entry => {
         if (entry.isIntersecting) {
@@ -76,71 +74,6 @@ function handleIntersect(entries: IntersectionObserverEntry[]) {
         }
     })
 }
-
-
-// FIXME: Fix leak memory
-// //terrible function
-// function handleIntersect(entries: IntersectionObserverEntry[]) {
-//     const visiblePageNums: number[] = [];
-//     // take all entry in intersection
-//     entries.forEach(async (entry: IntersectionObserverEntry) => {
-//         if(entry.isIntersecting) {
-//             const target = entry.target as HTMLElement;
-//             const pageNum = Number(target.id.split("-").pop());
-//             if(!isNaN(pageNum)) {
-//                 visiblePageNums.push(pageNum);
-//             }
-//         }
-//   });
-
-//     if(visiblePageNums.length === 0) return;
-//     const min = Math.min(...visiblePageNums);
-//     const max = Math.max(...visiblePageNums);
-
-//     // add all page to activity pages
-//     const newActivityPages = new Set<number>();
-//     for(let pages = min - VISIBLE_PAGE; pages <= max + VISIBLE_PAGE; pages++) {
-//         if(pages > 0) {
-//             newActivityPages.add(pages);
-//         }
-//     }
-
-//     // render all pages
-//     for(const pageNum of newActivityPages) {
-//         if(activityPages.has(pageNum)) continue;
-//         const target = document.getElementById(`page-${pageNum}`);
-//         if(target) {
-//             const debouncePage = debounce (async () => {
-//                 await renderVisiblePage(target, pageNum);
-//             }, 40);
-//             debouncedMap.set(pageNum, debouncePage);
-//         }
-//         const debounceFN = debouncedMap.get(pageNum);
-//         if(debounceFN) {
-//             debounceFN();
-//         }
-        
-//     }
-
-//     // remove old pages
-//     for(const pageNum of activityPages) {
-//         if(!newActivityPages.has(pageNum)) {
-//             const target = document.getElementById(`page-${pageNum}`);
-//             if(target) {
-//                 const debounceFN = debouncedMap.get(pageNum) as DebouncedFunction<(target: HTMLElement) => void>;
-//                 if(debounceFN) {
-//                     debounceFN.cancel();
-//                     debouncedMap.delete(pageNum);
-//                 }
-//                 clearPage(target, pageNum);
-//             }
-//         }
-//     } 
-
-//     // clear all data
-//     activityPages.clear();
-//     newActivityPages.forEach(p => activityPages.add(p));
-// }
 
 function createPage(container: HTMLElement) {
     container.innerHTML = "";
@@ -173,6 +106,14 @@ function cleanupObserver() {
     }
     observer.value.disconnect()
     observer.value = null
+}
+
+async function resizeContainerPdf() {
+    const container = containerAllPages.value;
+    log.debug(`containerAllPages ${container}`);
+    if(!container) return;
+    const pages = container.querySelectorAll('.container-pdf');
+    await props.pdfReader.resizeContainersPdf(pages);
 }
 
 function clearAllCanvases() {

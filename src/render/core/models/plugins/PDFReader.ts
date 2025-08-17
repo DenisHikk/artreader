@@ -43,9 +43,7 @@ export class PDFReader implements IReader {
 
     async render(container: HTMLElement, numPage: number = 1): Promise<void> {
         const page = await this.pdfDoc?.getPage(numPage);
-        if(!page) {
-            throw new Error("Page not found");
-        }
+        if(!page) throw new Error("Page not found");
 
         const viewport = this.getViewport(page);
         const {canvas, ctx, textLayer} = this.prepareCanvasAndTextLayer(container, viewport);
@@ -104,6 +102,7 @@ export class PDFReader implements IReader {
 
     getTotalPages(): number {
         if(!this.pdfDoc) {
+            log.debug(`PDF is ${this.pdfDoc}`)
             throw new Error("Upload file first!")
         }
         return this.pdfDoc.numPages;
@@ -117,9 +116,7 @@ export class PDFReader implements IReader {
             offsetY: 0,
             dontFlip: false
         });
-        if(!viewport) {
-            throw new Error("Can't create viewport PDF");
-        }
+        if(!viewport) throw new Error("Can't create viewport PDF");
         return viewport;
     }
 
@@ -136,6 +133,22 @@ export class PDFReader implements IReader {
             }
         });
         this.renderTasks.clear();
+    }
+
+    async resizeContainersPdf(containersPdf: NodeListOf<Element>) {
+        const page = await this.pdfDoc?.getPage(1);
+        if(!page) throw new Error("Page not found");
+
+        const viewport = this.getViewport(page);
+        containersPdf.forEach(elem => {
+            const htmlelem = elem as HTMLElement;
+
+            if(!viewport) return;
+            if(!htmlelem) return;
+
+            htmlelem.style.width = `${viewport.width}px`;
+            htmlelem.style.height = `${viewport.height}px`;
+        })
     }
 
     private prepareCanvasAndTextLayer(container:HTMLElement, viewport: PageViewport) {
